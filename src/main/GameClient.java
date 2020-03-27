@@ -5,10 +5,12 @@ import controller.LoginController;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import model.Client;
+import service.ServerService;
 import view.ClientView;
 import view.LoginView;
 
 public class GameClient extends Application {
+    private ServerService serverService;
     private LoginView loginView;
     private LoginController loginController;
 
@@ -27,23 +29,24 @@ public class GameClient extends Application {
      * @param primaryStage Stage
      */
     public void start(Stage primaryStage) throws Exception {
+        this.serverService = new ServerService(this);
+
         this.loginController = new LoginController();
         this.loginView = new LoginView(primaryStage, this.loginController);
         this.loginController.setGameClient(this);
 
         this.client = new Client();
-        this.clientController = new ClientController(client);
+        this.clientController = new ClientController(client, serverService, this);
         this.clientView = new ClientView(primaryStage, this.clientController);
+        this.clientController.setClientView(clientView);
 
         this.loginView.show();
-
-        this.client.setPlayers(clientController.retrievePlayersFromServer());
-        this.client.setGames(clientController.retrieveGameListFromServer());
     }
 
     public void login(String text) {
         this.loginView.hide();
         this.client.setUserName(text);
+        this.clientController.login();
         this.clientView.show();
     }
 }

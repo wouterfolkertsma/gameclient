@@ -6,6 +6,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * The main view Class where all other views extend from. It builds a view from an FXML file and css.
+ * The correct controller will be set in child Classes.
+ *
+ * @author Wouter
+ */
 public abstract class AbstractView {
     private Stage stage;
     private Scene scene;

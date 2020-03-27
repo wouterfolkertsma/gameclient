@@ -1,43 +1,33 @@
 package controller;
 
+import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
+import main.GameClient;
 import model.Client;
-
+import service.ServerService;
+import view.ClientView;
 import java.util.ArrayList;
 
+/**
+ * Class ClientController handles all events for the client page.
+ *
+ * @author Wouter Folkertsma
+ */
 public class ClientController extends AbstractController {
     private Client client;
+    private ServerService serverService;
+    private ClientView clientView;
+
+    @FXML
+    private ListView<String> playerList;
 
     /**
      * @param client Client
      */
-    public ClientController(Client client) {
+    public ClientController(Client client, ServerService serverService, GameClient gameClient) {
         this.client = client;
-    }
-
-    /**
-     * @return ArrayList
-     */
-    public ArrayList retrievePlayersFromServer() {
-        ArrayList<String> list = new ArrayList<String>();
-
-        list.add("Wouter");
-        list.add("Wouter1");
-        list.add("Wouter2");
-        list.add("Wouter3");
-
-        return list;
-    }
-
-    /**
-     * @return ArrayList
-     */
-    public ArrayList retrieveGameListFromServer() {
-        ArrayList<String> list = new ArrayList<String>();
-
-        list.add("TestGame1");
-        list.add("TestGame2");
-
-        return list;
+        this.serverService = serverService;
+        this.gameClient = gameClient;
     }
 
     /**
@@ -45,5 +35,18 @@ public class ClientController extends AbstractController {
      */
     public ArrayList getPlayerList() {
         return this.client.getPlayers();
+    }
+
+    public void login() {
+        this.client.setPlayers(serverService.retrievePlayers());
+        this.client.setGames(serverService.retrieveGameList());
+
+        this.playerList.getItems().add("Wouter");
+        this.playerList.getItems().add("Wouter2");
+        this.client.getPlayers().forEach((player) -> this.playerList.getItems().add(player));
+    }
+
+    public void setClientView(ClientView clientView) {
+         this.clientView = clientView;
     }
 }

@@ -1,17 +1,23 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
+/**
+ * Class GameClient which stores all the data for the client.
+ *
+ * @author Wouter Folkertsma
+ */
 public class Client {
-    private ArrayList games = new ArrayList<>();
-    private ArrayList players = new ArrayList<>();
+    private ArrayList<String> games = new ArrayList<>();
+    private ArrayList<String> players = new ArrayList<>();
     private String userName;
 
     /**
      * @param games ArrayList
      * @return ArrayList
      */
-    public ArrayList setGames(ArrayList games) {
+    public ArrayList<String> setGames(ArrayList<String> games) {
         this.games = games;
         return this.games;
     }
@@ -19,7 +25,7 @@ public class Client {
     /**
      * @return ArrayList
      */
-    public ArrayList getGames() {
+    public ArrayList<String> getGames() {
         return this.games;
     }
 
@@ -27,7 +33,7 @@ public class Client {
      * @param players ArrayList
      * @return ArrayList
      */
-    public ArrayList setPlayers(ArrayList players) {
+    public ArrayList<String> setPlayers(ArrayList<String> players) {
         this.players = players;
         return this.players;
     }
@@ -35,7 +41,7 @@ public class Client {
     /**
      * @return ArrayList
      */
-    public ArrayList getPlayers() {
+    public ArrayList<String> getPlayers() {
         return this.players;
     }
 

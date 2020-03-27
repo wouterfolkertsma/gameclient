@@ -7,8 +7,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
 import view.LoginView;
-import main.GameClient;
 
+/**
+ * Class LoginController handles all events for the login page.
+ *
+ * @author Wouter Folkertsma
+ */
 public class LoginController extends AbstractController {
     @FXML
     private TextField nameField;
@@ -18,8 +22,6 @@ public class LoginController extends AbstractController {
 
     @FXML
     private LoginView loginView;
-
-    private GameClient gameClient;
 
     public void handleSubmitButtonAction(ActionEvent actionEvent) {
         Window owner = submitButton.getScene().getWindow();
@@ -39,9 +41,5 @@ public class LoginController extends AbstractController {
         alert.setContentText("Please enter your name");
         alert.initOwner(owner);
         alert.show();
-    }
-
-    public void setGameClient(GameClient gameClient) {
-        this.gameClient = gameClient;
     }
 }

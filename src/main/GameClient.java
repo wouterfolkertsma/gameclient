@@ -39,8 +39,8 @@ public class GameClient extends Application {
         this.clientController = new ClientController(client, serverService, this);
         this.clientView = new ClientView(primaryStage, this.clientController);
         this.clientController.setClientView(clientView);
-
-        this.loginView.show();
+        this.clientView.show();
+//        this.loginView.show();
     }
 
     public void login(String text) {

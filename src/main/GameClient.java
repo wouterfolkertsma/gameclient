@@ -2,17 +2,22 @@ package main;
 
 import controller.ClientController;
 import controller.LoginController;
+import controller.TicTacToeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import model.Client;
 import service.ServerService;
 import view.ClientView;
 import view.LoginView;
+import view.TicTacToeView;
 
 public class GameClient extends Application {
     private ServerService serverService;
     private LoginView loginView;
     private LoginController loginController;
+
+    private TicTacToeView ticTacToeView;
+    private TicTacToeController ticTacToeController;
 
     private Client client;
     private ClientView clientView;
@@ -35,12 +40,16 @@ public class GameClient extends Application {
         this.loginView = new LoginView(primaryStage, this.loginController);
         this.loginController.setGameClient(this);
 
+        this.ticTacToeController = new TicTacToeController();
+        this.ticTacToeView = new TicTacToeView(primaryStage, this.ticTacToeController);
+
         this.client = new Client();
         this.clientController = new ClientController(client, serverService, this);
         this.clientView = new ClientView(primaryStage, this.clientController);
         this.clientController.setClientView(clientView);
 
-        this.loginView.show();
+        this.ticTacToeView.show();
+//        this.loginView.show();
     }
 
     public void login(String text) {

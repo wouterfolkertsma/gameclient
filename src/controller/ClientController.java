@@ -38,9 +38,7 @@ public class ClientController extends AbstractController {
     }
 
     public void login() {
-//        this.client.setPlayers(serverService.retrievePlayers());
-//        this.client.setGames(serverService.retrieveGameList());
-
+        serverService.login(this.client.getUserName());
         this.playerList.getItems().add("Wouter");
         this.playerList.getItems().add("Wouter2");
         this.client.getPlayers().forEach((player) -> this.playerList.getItems().add(player));

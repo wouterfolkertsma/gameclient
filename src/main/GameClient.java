@@ -48,8 +48,8 @@ public class GameClient extends Application {
         this.clientView = new ClientView(primaryStage, this.clientController);
         this.clientController.setClientView(clientView);
 
-        this.ticTacToeView.show();
-//        this.loginView.show();
+//        this.ticTacToeView.show();
+        this.loginView.show();
     }
 
     public void login(String text) {

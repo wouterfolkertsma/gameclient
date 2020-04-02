@@ -2,86 +2,132 @@ package service;
 
 import main.GameClient;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Scanner;
 
 /**
  * Class ServerService contains all the communication methods for the server.
  *
- * @author Wouter Folkertsma
+ * @author Wouter Folkertsma, Daniël Windstra, Anthonie Ooms
  */
-public class ServerService {
+public class ServerService extends Thread {
+    private static final String IP_ADDRESS = "127.0.0.1";
+    private static final int PORT = 7789;
 
     private GameClient gameClient;
-
-    private PrintWriter toServer = null;
-    private BufferedReader fromServer = null;
+    private BufferedWriter bufferedWriter;
+    private BufferedReader bufferedReader;
     private Socket socket = null;
     private boolean connected = false;
+    private Scanner scanner;
 
     public ServerService(GameClient gameClient) {
         this.gameClient = gameClient;
+        this.start();
     }
 
-    public void login(String s){
-        while(!connected) {
-            try {
-                socket = new Socket("localhost", 7789);
-                connected = true;
-                toServer = new PrintWriter(socket.getOutputStream());
-                fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            } catch (IOException e) {
-                return;
-            }
+    @Override
+    public void run() {
+        try {
+            socket = new Socket(IP_ADDRESS, PORT);
+            bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            scanner = new Scanner(socket.getInputStream());
+        } catch (IOException exception) {
+            System.out.println(exception.getMessage());
+        }
 
-            toServer.println("login " + s);
-            System.out.print(getServerResponse());
+        while (true) {
+            try {
+                if (scanner.hasNextLine()) {
+                    String newLine = scanner.nextLine();
+                    if (!newLine.equals("OK")) {
+                        this.handleResponse(newLine);
+                    }
+                    System.out.println(newLine);
+                }
+            } catch (Exception exception) {
+                System.out.println(exception.getMessage());
+            }
         }
     }
 
-    public void exit(){
+    private void handleResponse(String newLine) {
+        if (newLine.contains("SVR GAME YOURTURN")) {
+            this.handleOpponentTurn(newLine);
+        } else if (newLine.contains("SVR GAME LOSS")) {
+
+        } else if (newLine.contains("SVR GAME LOSS")) {
+
+        } else if (newLine.contains("SVR GAME LOSS")) {
+
+        } else if (newLine.contains("SVR GAME LOSS")) {
+
+        } else if (newLine.contains("SVR GAME LOSS")) {
+
+        } else if (newLine.contains("SVR GAME LOSS")) {
+
+        } else if (newLine.contains("SVR GAME LOSS")) {
+
+        }
+    }
+
+    private void handleOpponentTurn(String line) {
+
+    }
+
+    public void login(String userName) {
+        System.out.println("Loggin in!");
+        writeLine("login Test");
+        writeLine("get playerlist");
+        writeLine("subscribe Tic-tac-toe");
+    }
+
+    public void exit() {
         try {
-            toServer.println("bye");
-            toServer.close();
-            fromServer.close();
+            writeLine("bye");
+            bufferedWriter.close();
+            bufferedReader.close();
             socket.close();
+            connected = false;
         }
         catch(IOException e){
-            return;
+            System.out.println(e.getMessage());
         }
     }
 
-    public String getServerResponse(){
-        String output = "";
-        try{
-            while(!fromServer.readLine().equals(null)){
-                output += fromServer.readLine();
-            }
-        }catch (IOException e){
-            return null;
+    public boolean getServerState(){
+        boolean isReady;
+
+        try {
+            isReady = bufferedReader.ready();
+        } catch (Exception e){
+            return false;
         }
-        return output;
+
+        return isReady;
     }
 
-    public String retrievePlayers(){
-        toServer.println("get playerlist");
-        return getServerResponse();
+    public void retrievePlayers(){
+        writeLine("get playerlist");
     }
 
-    public String retrieveGameList(){
-        toServer.println("get gamelist");
-        return getServerResponse();
+    public void retrieveGameList(){
+        writeLine("get gamelist");
     }
 
-    public String subscribe(String s){
-        toServer.println("subscribe " + s);
-        return getServerResponse();
+    /**
+     * @param s
+     * @return
+     */
+    public void subscribe(String s){
+        writeLine("subscribe " + s);
     }
 
     public void matchStart(){
+        HashMap<String, String> map = new HashMap<>();
         System.out.println();
     }
 
@@ -90,66 +136,38 @@ public class ServerService {
     }
 
     public void makeMove(String s){
-        toServer.println("move " + s);
+        writeLine("move " + s);
     }
 
     public void forfeit(){
-        toServer.println("forfeit");
+        writeLine("forfeit");
     }
 
-    public String receiveResult(){
-        return getServerResponse();
+    public void receiveResult(){
     }
 
-    public String challengePlayer(String s){
-        toServer.println("challenge " + s);
-        return getServerResponse();
+    public void challengePlayer(String s){
+        writeLine("challenge " + s);
     }
 
-    public String receiveChallenge(){
-        return getServerResponse();
+    public void receiveChallenge() {
     }
 
     public void acceptChallenge(){
-        toServer.println("challenge accept");
+        writeLine("challenge accept");
     }
 
-    public void getHelp(){
-        toServer.println("help");
-        System.out.print(getServerResponse());
+    public void getHelp() {
+        writeLine("help");
     }
 
-
-
-
-
-
-
-    /**
-     * @return ArrayList deprecated, delete if not needed.
-     */
-//    public ArrayList<String> retrievePlayers() {
-//        ArrayList<String> list = new ArrayList<String>();
-//
-//        list.add("Wouter");
-//        list.add("Wouter1");
-//        list.add("Wouter2");
-//        list.add("Wouter3");
-//
-//        return list;
-//    }
-
-//
-//    /**
-//     * @return ArrayList
-//     */
-//    public ArrayList<String> retrieveGameList() {
-//        ArrayList<String> list = new ArrayList<String>();
-//
-//        list.add("TestGame1");
-//        list.add("TestGame2");
-//
-//        return list;
-//    }
-
+    private void writeLine(String line) {
+        try {
+            bufferedWriter.write(line);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+        } catch (IOException exception) {
+            System.out.println(exception.getMessage());
+        }
+    }
 }

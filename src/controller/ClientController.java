@@ -6,7 +6,6 @@ import main.GameClient;
 import model.Client;
 import service.ServerService;
 import view.ClientView;
-import java.util.ArrayList;
 
 /**
  * Class ClientController handles all events for the client page.
@@ -28,13 +27,6 @@ public class ClientController extends AbstractController {
         this.client = client;
         this.serverService = serverService;
         this.gameClient = gameClient;
-    }
-
-    /**
-     * @return ArrayList
-     */
-    public ArrayList getPlayerList() {
-        return this.client.getPlayers();
     }
 
     public void login() {

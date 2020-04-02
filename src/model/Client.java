@@ -1,14 +1,13 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Class GameClient which stores all the data for the client.
  *
  * @author Wouter Folkertsma
  */
-public class Client {
+public class Client extends AbstractModel {
     private ArrayList<String> games = new ArrayList<>();
     private ArrayList<String> players = new ArrayList<>();
     private String userName;

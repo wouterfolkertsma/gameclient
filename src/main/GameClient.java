@@ -36,7 +36,7 @@ public class GameClient extends Application {
     public void start(Stage primaryStage) throws Exception {
         this.serverService = new ServerService(this);
 
-        this.loginController = new LoginController();
+        this.loginController = new LoginController(serverService);
         this.loginView = new LoginView(primaryStage, this.loginController);
         this.loginController.setGameClient(this);
 

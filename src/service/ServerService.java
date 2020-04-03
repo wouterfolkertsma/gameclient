@@ -3,9 +3,10 @@ package service;
 import main.GameClient;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class ServerService contains all the communication methods for the server.
@@ -16,45 +17,84 @@ public class ServerService extends Thread {
     private static final String IP_ADDRESS = "127.0.0.1";
     private static final int PORT = 7789;
 
+    private ServerListenerService serverListener;
     private GameClient gameClient;
     private BufferedWriter bufferedWriter;
     private BufferedReader bufferedReader;
     private Socket socket = null;
-    private boolean connected = false;
     private Scanner scanner;
+    private boolean mayRead = true;
+    private ArrayList<String> responses = new ArrayList<>();
+    private LinkedList<String> queue;
 
     public ServerService(GameClient gameClient) {
         this.gameClient = gameClient;
-        this.start();
-    }
+        this.queue = new LinkedList<>();
 
-    @Override
-    public void run() {
         try {
             socket = new Socket(IP_ADDRESS, PORT);
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             scanner = new Scanner(socket.getInputStream());
+
+            this.serverListener = new ServerListenerService(this, socket, scanner, queue);
         } catch (IOException exception) {
             System.out.println(exception.getMessage());
         }
 
-        while (true) {
-            try {
-                if (scanner.hasNextLine()) {
-                    String newLine = scanner.nextLine();
-                    if (!newLine.equals("OK")) {
-                        this.handleResponse(newLine);
-                    }
-                    System.out.println(newLine);
-                }
-            } catch (Exception exception) {
-                System.out.println(exception.getMessage());
-            }
-        }
+        this.start();
     }
 
-    private void handleResponse(String newLine) {
+    @Override
+    public void run() {
+        this.listen();
+    }
+
+    private void listen() {
+
+    }
+
+    /**
+     * @return String
+     */
+    private ArrayList<String> readResponse() {
+        ArrayList<String> responses = new ArrayList<>();
+        try {
+            TimeUnit.MILLISECONDS.sleep(50);
+
+            while (this.queue.size() > 0) {
+                String newLine = this.queue.poll();
+                responses.add(newLine);
+                System.out.println(newLine);
+            }
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+
+        return responses;
+    }
+
+    private ArrayList<String> writeLine(String line) {
+        serverListener.mayRead = false;
+
+        ArrayList<String> response = new ArrayList<>();
+
+        try {
+            bufferedWriter.write(line);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+
+            response = this.readResponse();
+        } catch (Exception exception) {
+            response.add(exception.getMessage());
+        }
+
+        serverListener.mayRead = true;
+        return response;
+    }
+
+    void handleResponse(String newLine) {
+        System.out.println("NEW CODE " + newLine);
         if (newLine.contains("SVR GAME YOURTURN")) {
             this.handleOpponentTurn(newLine);
         } else if (newLine.contains("SVR GAME LOSS")) {
@@ -78,27 +118,15 @@ public class ServerService extends Thread {
 
     }
 
-    public void login(String userName) {
-        System.out.println("Loggin in!");
-        writeLine("login Test");
-        writeLine("get playerlist");
-        writeLine("subscribe Tic-tac-toe");
+    public ArrayList<String> login(String userName) {
+        return writeLine("login " + userName);
     }
 
     public void exit() {
-        try {
-            writeLine("bye");
-            bufferedWriter.close();
-            bufferedReader.close();
-            socket.close();
-            connected = false;
-        }
-        catch(IOException e){
-            System.out.println(e.getMessage());
-        }
+
     }
 
-    public boolean getServerState(){
+    public boolean getServerState() {
         boolean isReady;
 
         try {
@@ -128,11 +156,9 @@ public class ServerService extends Thread {
 
     public void matchStart(){
         HashMap<String, String> map = new HashMap<>();
-        System.out.println();
     }
 
     public void playerTurn(){
-        System.out.println();
     }
 
     public void makeMove(String s){
@@ -161,13 +187,26 @@ public class ServerService extends Thread {
         writeLine("help");
     }
 
-    private void writeLine(String line) {
-        try {
-            bufferedWriter.write(line);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
-        } catch (IOException exception) {
-            System.out.println(exception.getMessage());
+    public ArrayList<String> getPlayerList() {
+        ArrayList<String> responseArray = writeLine("get playerlist");
+
+        for (String response : responseArray) {
+            if (response.contains("SVR PLAYERLIST")) {
+                responseArray = getLastArgument(response);
+            }
         }
+
+        return responseArray;
+    }
+
+    private ArrayList<String> getLastArgument(String line) {
+        ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(line.split("\\[")[1].split("]")[0].split(", ")));
+        ArrayList<String> response = new ArrayList<>();
+
+        for (String argument : arguments) {
+            response.add(argument.substring(1, argument.length() - 1));
+        }
+
+        return response;
     }
 }

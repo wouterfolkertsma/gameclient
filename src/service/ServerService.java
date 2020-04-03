@@ -1,9 +1,9 @@
 package service;
 
 import main.GameClient;
+import model.Challenger;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Wouter Folkertsma, Daniël Windstra, Anthonie Ooms
  */
-public class ServerService extends Thread {
+public class ServerService {
     private static final String IP_ADDRESS = "127.0.0.1";
     private static final int PORT = 7789;
 
@@ -41,17 +41,6 @@ public class ServerService extends Thread {
         } catch (IOException exception) {
             System.out.println(exception.getMessage());
         }
-
-        this.start();
-    }
-
-    @Override
-    public void run() {
-        this.listen();
-    }
-
-    private void listen() {
-
     }
 
     /**
@@ -90,28 +79,36 @@ public class ServerService extends Thread {
         }
 
         serverListener.mayRead = true;
+
         return response;
     }
 
     void handleResponse(String newLine) {
-        System.out.println("NEW CODE " + newLine);
         if (newLine.contains("SVR GAME YOURTURN")) {
             this.handleOpponentTurn(newLine);
-        } else if (newLine.contains("SVR GAME LOSS")) {
+        } else if (newLine.contains("SVR GAME CHALLENGE CANCELLED")) {
 
-        } else if (newLine.contains("SVR GAME LOSS")) {
-
-        } else if (newLine.contains("SVR GAME LOSS")) {
-
-        } else if (newLine.contains("SVR GAME LOSS")) {
-
-        } else if (newLine.contains("SVR GAME LOSS")) {
-
-        } else if (newLine.contains("SVR GAME LOSS")) {
-
-        } else if (newLine.contains("SVR GAME LOSS")) {
-
+        } else if (newLine.contains("SVR GAME CHALLENGE")) {
+            this.incomingChallenge(newLine);
         }
+    }
+
+    private void incomingChallenge(String newLine) {
+        ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(newLine.split("\\{")[1].split("}")[0].split(", ")));
+        Challenger challenger = new Challenger();
+
+        for (String argument : arguments) {
+            String key = argument.split(": ")[0];
+            String value = argument.split(": ")[1].substring(1, argument.split(": ")[1].length() - 1);
+
+            switch (key) {
+                case "CHALLENGER": challenger.setChallenger(value);
+                case "CHALLENGENUMBER": challenger.setChallengeNumber(value);
+                case "GAMETYPE": challenger.setGameType(value);
+            }
+        }
+
+        this.gameClient.incomingChallenge(challenger);
     }
 
     private void handleOpponentTurn(String line) {
@@ -180,11 +177,8 @@ public class ServerService extends Thread {
         }
     }
 
-    public void receiveChallenge() {
-    }
-
-    public void acceptChallenge(){
-        writeLine("challenge accept");
+    public void acceptChallenge(Challenger challenger) {
+        writeLine("challenge accept " + challenger.getChallengeNumber());
     }
 
     public void getHelp() {

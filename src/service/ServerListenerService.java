@@ -1,5 +1,7 @@
 package service;
 
+import javafx.application.Platform;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -31,6 +33,7 @@ public class ServerListenerService extends Thread {
         this.start();
     }
 
+    @SuppressWarnings("InfiniteLoopStatement")
     @Override
     public void run() {
         while (true) {
@@ -38,7 +41,7 @@ public class ServerListenerService extends Thread {
                 if (scanner.hasNextLine()) {
                     String newLine = scanner.nextLine();
                     if (mayRead) {
-                        this.serverService.handleResponse(newLine);
+                        Platform.runLater(() -> this.serverService.handleResponse(newLine));
                     } else {
                         this.queue.add(newLine);
                     }

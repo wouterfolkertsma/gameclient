@@ -2,15 +2,16 @@ package controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.stage.Window;
 import main.GameClient;
+import model.Challenger;
 import model.Client;
 import service.ServerService;
 import view.ClientView;
-
-import java.util.ArrayList;
 
 /**
  * Class ClientController handles all events for the client page.
@@ -60,5 +61,26 @@ public class ClientController extends AbstractController {
 
     public void setClientView(ClientView clientView) {
          this.clientView = clientView;
+    }
+
+    public void incomingChallenge(Challenger challenger) {
+        String message = challenger.getChallenger() + " has challenged you to play " + challenger.getGameType() + ". Do you accept?";
+        Alert alert = this.showPrompt(challengeButton.getScene().getWindow(), message, "INCOMING");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                this.serverService.acceptChallenge(challenger);
+            }
+        });
+    }
+
+    private Alert showPrompt(Window window, String message, String title) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.initOwner(window);
+
+        return alert;
     }
 }

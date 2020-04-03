@@ -4,7 +4,9 @@ import controller.ClientController;
 import controller.LoginController;
 import controller.TicTacToeController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
+import model.Challenger;
 import model.Client;
 import service.ServerService;
 import view.ClientView;
@@ -57,5 +59,9 @@ public class GameClient extends Application {
         this.client.setUserName(text);
         this.clientController.login();
         this.clientView.show();
+    }
+
+    public void incomingChallenge(Challenger challenger) {
+        this.clientController.incomingChallenge(challenger);
     }
 }

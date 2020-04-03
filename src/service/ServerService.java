@@ -23,8 +23,6 @@ public class ServerService {
     private BufferedReader bufferedReader;
     private Socket socket = null;
     private Scanner scanner;
-    private boolean mayRead = true;
-    private ArrayList<String> responses = new ArrayList<>();
     private LinkedList<String> queue;
 
     public ServerService(GameClient gameClient) {
@@ -37,7 +35,7 @@ public class ServerService {
             bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             scanner = new Scanner(socket.getInputStream());
 
-            this.serverListener = new ServerListenerService(this, socket, scanner, queue);
+            this.serverListener = new ServerListenerService(this, scanner, queue);
         } catch (IOException exception) {
             System.out.println(exception.getMessage());
         }
@@ -111,64 +109,6 @@ public class ServerService {
         this.gameClient.incomingChallenge(challenger);
     }
 
-    private void handleOpponentTurn(String line) {
-
-    }
-
-    public ArrayList<String> login(String userName) {
-        return writeLine("login " + userName);
-    }
-
-    public void exit() {
-
-    }
-
-    public boolean getServerState() {
-        boolean isReady;
-
-        try {
-            isReady = bufferedReader.ready();
-        } catch (Exception e){
-            return false;
-        }
-
-        return isReady;
-    }
-
-    public void retrievePlayers(){
-        writeLine("get playerlist");
-    }
-
-    public void retrieveGameList(){
-        writeLine("get gamelist");
-    }
-
-    /**
-     * @param s
-     * @return
-     */
-    public void subscribe(String s){
-        writeLine("subscribe " + s);
-    }
-
-    public void matchStart(){
-        HashMap<String, String> map = new HashMap<>();
-    }
-
-    public void playerTurn(){
-    }
-
-    public void makeMove(String s){
-        writeLine("move " + s);
-    }
-
-    public void forfeit(){
-        writeLine("forfeit");
-    }
-
-    public void receiveResult(){
-    }
-
     public void challengePlayer(String player, String game){
         ArrayList<String> response = writeLine("challenge \"" + player + "\" \"" + game + "\"");
 
@@ -179,10 +119,6 @@ public class ServerService {
 
     public void acceptChallenge(Challenger challenger) {
         writeLine("challenge accept " + challenger.getChallengeNumber());
-    }
-
-    public void getHelp() {
-        writeLine("help");
     }
 
     public ArrayList<String> getPlayerList() {
@@ -219,4 +155,51 @@ public class ServerService {
 
         return responseArray;
     }
+
+    public void getHelp() {
+        writeLine("help");
+    }
+
+    private void handleOpponentTurn(String line) {
+
+    }
+
+    public ArrayList<String> login(String userName) {
+        return writeLine("login " + userName);
+    }
+
+    public void retrievePlayers(){
+        writeLine("get playerlist");
+    }
+
+    public void retrieveGameList(){
+        writeLine("get gamelist");
+    }
+
+    /**
+     * @param s
+     * @return
+     */
+    public void subscribe(String s){
+        writeLine("subscribe " + s);
+    }
+
+    public void matchStart(){
+        HashMap<String, String> map = new HashMap<>();
+    }
+
+    public void playerTurn(){
+    }
+
+    public void makeMove(String s){
+        writeLine("move " + s);
+    }
+
+    public void forfeit(){
+        writeLine("forfeit");
+    }
+
+    public void receiveResult(){
+    }
+
 }

@@ -172,8 +172,12 @@ public class ServerService extends Thread {
     public void receiveResult(){
     }
 
-    public void challengePlayer(String s){
-        writeLine("challenge " + s);
+    public void challengePlayer(String player, String game){
+        ArrayList<String> response = writeLine("challenge \"" + player + "\" \"" + game + "\"");
+
+        for (String line : response) {
+            System.out.println("NEW RESPONSE " + line);
+        }
     }
 
     public void receiveChallenge() {
@@ -208,5 +212,17 @@ public class ServerService extends Thread {
         }
 
         return response;
+    }
+
+    public ArrayList<String> getGamesList() {
+        ArrayList<String> responseArray = writeLine("get gamelist");
+
+        for (String response : responseArray) {
+            if (response.contains("SVR GAMELIST")) {
+                responseArray = getLastArgument(response);
+            }
+        }
+
+        return responseArray;
     }
 }

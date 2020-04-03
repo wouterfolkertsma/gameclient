@@ -51,3 +51,7 @@ SplitPane, GridPane, AnchorPane {
 .playerList {
     -fx-height: 100%;
 }
+
+.test {
+    -fx-visibility: hidden;
+}

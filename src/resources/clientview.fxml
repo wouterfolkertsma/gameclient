@@ -12,7 +12,7 @@
         <URL value="@clientview.css" />
     </stylesheets>
     <items>
-    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" SplitPane.resizableWithParent="false">
          <children>
             <Text layoutX="48.0" layoutY="25.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Game client" />
          </children>
@@ -26,7 +26,9 @@
                </children></AnchorPane>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="351.0" prefWidth="289.0">
                <children>
-                  <ListView id="playerList" fx:id="playerList" prefHeight="440.0" prefWidth="248.0" />
+                  <ListView id="gamesList" fx:id="gamesList" prefHeight="440.0" prefWidth="220.0" />
+                  <ListView id="playerList" fx:id="playerList" layoutX="220.0" prefHeight="440.0" prefWidth="220.0" />
+                  <Button   id="challengeButton" onAction="#handleSubmitButtonAction" fx:id="challengeButton" layoutX="460.0" layoutY="20.0" prefWidth="120.0" mnemonicParsing="false" text="Challenge" />
                </children>
             </AnchorPane>
         </items>

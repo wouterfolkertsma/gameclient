@@ -10,8 +10,13 @@ import javafx.stage.Window;
 import main.GameClient;
 import model.Challenger;
 import model.Client;
+import model.Game;
+import model.GameType;
 import service.ServerService;
 import view.ClientView;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 /**
  * Class ClientController handles all events for the client page.
@@ -49,7 +54,6 @@ public class ClientController extends AbstractController {
         String currentPlayer = this.playerList.getSelectionModel().getSelectedItem();
 
         this.serverService.challengePlayer(currentPlayer, currentGame);
-        System.out.println("Challenging: " + currentPlayer + " for " + currentGame);
     }
 
     public void login() {

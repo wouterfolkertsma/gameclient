@@ -12,8 +12,4 @@ public class ClientView extends AbstractView {
     public ClientView(Stage stage, ClientController clientController) {
         super(stage, clientController, "/resources/clientview.fxml");
     }
-
-    public void showPlayerList() {
-
-    }
 }

@@ -1,8 +1,6 @@
 package service;
 
 import javafx.application.Platform;
-import java.io.*;
-import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -27,6 +25,7 @@ public class ServerListenerService extends Thread {
             try {
                 if (scanner.hasNextLine()) {
                     String newLine = scanner.nextLine();
+                    System.out.println(newLine);
                     if (mayRead) {
                         Platform.runLater(() -> this.serverService.handleResponse(newLine));
                     } else {

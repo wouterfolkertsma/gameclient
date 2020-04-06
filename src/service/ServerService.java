@@ -2,6 +2,8 @@ package service;
 
 import main.GameClient;
 import model.Challenger;
+import model.Game;
+import model.Move;
 
 import java.io.*;
 import java.net.Socket;
@@ -52,7 +54,6 @@ public class ServerService {
             while (this.queue.size() > 0) {
                 String newLine = this.queue.poll();
                 responses.add(newLine);
-                System.out.println(newLine);
             }
         } catch (Exception e) {
             System.out.println(e.toString());
@@ -61,7 +62,17 @@ public class ServerService {
         return responses;
     }
 
-    private ArrayList<String> writeLine(String line) {
+    private void writeLine(String line) {
+        try {
+            bufferedWriter.write(line);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+        } catch (Exception exception) {
+           //
+        }
+    }
+
+    private ArrayList<String> writeLineAndRead(String line) {
         serverListener.mayRead = false;
 
         ArrayList<String> response = new ArrayList<>();
@@ -83,12 +94,56 @@ public class ServerService {
 
     void handleResponse(String newLine) {
         if (newLine.contains("SVR GAME YOURTURN")) {
-            this.handleOpponentTurn(newLine);
+            this.yourTurn(newLine);
         } else if (newLine.contains("SVR GAME CHALLENGE CANCELLED")) {
 
         } else if (newLine.contains("SVR GAME CHALLENGE")) {
             this.incomingChallenge(newLine);
+        } else if (newLine.contains("SVR GAME MATCH")) {
+            this.newMatch(newLine);
+        } else if (newLine.contains("SVR GAME MOVE")) {
+            this.handleMove(newLine);
         }
+    }
+
+    private void yourTurn(String newLine) {
+        this.gameClient.yourTurn();
+    }
+
+    private void handleMove(String newLine) {
+        ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(newLine.split("\\{")[1].split("}")[0].split(", ")));
+        Move move = new Move();
+
+        for (String argument : arguments) {
+            String key = argument.split(": ")[0];
+            String value = argument.split(": ")[1].substring(1, argument.split(": ")[1].length() - 1);
+
+            switch (key) {
+                case "PLAYER": move.setPlayer(value); break;
+                case "MOVE": move.setMove(Integer.parseInt(value)); break;
+                case "DETAILS": move.setDetails(value); break;
+            }
+        }
+
+        this.gameClient.handleMove(move);
+    }
+
+    private void newMatch(String newLine) {
+        ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(newLine.split("\\{")[1].split("}")[0].split(", ")));
+        Game game = new Game();
+
+        for (String argument : arguments) {
+            String key = argument.split(": ")[0];
+            String value = argument.split(": ")[1].substring(1, argument.split(": ")[1].length() - 1);
+
+            switch (key) {
+                case "PLAYERTOMOVE": game.setPlayerToMove(value); break;
+                case "GAMETYPE": game.setGameType(value); break;
+                case "OPPONENT": game.setOpponent(value); break;
+            }
+        }
+
+        this.gameClient.startGame(game);
     }
 
     private void incomingChallenge(String newLine) {
@@ -110,11 +165,7 @@ public class ServerService {
     }
 
     public void challengePlayer(String player, String game){
-        ArrayList<String> response = writeLine("challenge \"" + player + "\" \"" + game + "\"");
-
-        for (String line : response) {
-            System.out.println("NEW RESPONSE " + line);
-        }
+        ArrayList<String> response = writeLineAndRead("challenge \"" + player + "\" \"" + game + "\"");
     }
 
     public void acceptChallenge(Challenger challenger) {
@@ -122,7 +173,7 @@ public class ServerService {
     }
 
     public ArrayList<String> getPlayerList() {
-        ArrayList<String> responseArray = writeLine("get playerlist");
+        ArrayList<String> responseArray = writeLineAndRead("get playerlist");
 
         for (String response : responseArray) {
             if (response.contains("SVR PLAYERLIST")) {
@@ -145,7 +196,7 @@ public class ServerService {
     }
 
     public ArrayList<String> getGamesList() {
-        ArrayList<String> responseArray = writeLine("get gamelist");
+        ArrayList<String> responseArray = writeLineAndRead("get gamelist");
 
         for (String response : responseArray) {
             if (response.contains("SVR GAMELIST")) {
@@ -157,23 +208,23 @@ public class ServerService {
     }
 
     public void getHelp() {
-        writeLine("help");
+        writeLineAndRead("help");
     }
 
-    private void handleOpponentTurn(String line) {
-
-    }
+//    private void mayMove(String line) {
+//        this.gameClient.makeMoveTicTacToe(line);
+//    }
 
     public ArrayList<String> login(String userName) {
-        return writeLine("login " + userName);
+        return writeLineAndRead("login " + userName);
     }
 
     public void retrievePlayers(){
-        writeLine("get playerlist");
+        writeLineAndRead("get playerlist");
     }
 
     public void retrieveGameList(){
-        writeLine("get gamelist");
+        writeLineAndRead("get gamelist");
     }
 
     /**
@@ -181,7 +232,7 @@ public class ServerService {
      * @return
      */
     public void subscribe(String s){
-        writeLine("subscribe " + s);
+        writeLineAndRead("subscribe " + s);
     }
 
     public void matchStart(){
@@ -191,12 +242,12 @@ public class ServerService {
     public void playerTurn(){
     }
 
-    public void makeMove(String s){
-        writeLine("move " + s);
+    public void makeMove(int position){
+        writeLineAndRead("move " + position);
     }
 
     public void forfeit(){
-        writeLine("forfeit");
+        writeLineAndRead("forfeit");
     }
 
     public void receiveResult(){

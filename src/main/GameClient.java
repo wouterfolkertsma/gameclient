@@ -6,8 +6,7 @@ import controller.TicTacToeController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import model.Challenger;
-import model.Client;
+import model.*;
 import service.ServerService;
 import view.ClientView;
 import view.LoginView;
@@ -24,6 +23,8 @@ public class GameClient extends Application {
     private Client client;
     private ClientView clientView;
     private ClientController clientController;
+
+    private String currentGame;
 
     /**
      * @param args String[]
@@ -42,7 +43,7 @@ public class GameClient extends Application {
         this.loginView = new LoginView(primaryStage, this.loginController);
         this.loginController.setGameClient(this);
 
-        this.ticTacToeController = new TicTacToeController();
+        this.ticTacToeController = new TicTacToeController(serverService);
         this.ticTacToeView = new TicTacToeView(primaryStage, this.ticTacToeController);
 
         this.client = new Client();
@@ -63,5 +64,36 @@ public class GameClient extends Application {
 
     public void incomingChallenge(Challenger challenger) {
         this.clientController.incomingChallenge(challenger);
+    }
+
+    public void startGame(Game game) {
+        switch (game.getGameType()) {
+            case GameType.TIC_TAC_TOE:
+                this.currentGame = GameType.TIC_TAC_TOE;
+                this.startTicTacToe(game);
+                break;
+            case GameType.REVERSI:
+                this.currentGame = GameType.REVERSI;
+                break;
+        }
+    }
+
+    private void startTicTacToe(Game game) {
+        this.clientView.hide();
+        this.ticTacToeView.show();
+    }
+
+    public void makeMoveTicTacToe(String turnMessage) {
+//        this.ticTacToeController.handleOpponentTurn(turnMessage);
+    }
+
+    public void handleMove(Move move) {
+        if (this.currentGame.equals(GameType.TIC_TAC_TOE))
+            this.ticTacToeController.handleOpponentTurn(move);
+    }
+
+    public void yourTurn() {
+        if (this.currentGame.equals(GameType.TIC_TAC_TOE))
+            this.ticTacToeController.setMyTurn();
     }
 }

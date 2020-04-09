@@ -1,6 +1,7 @@
 package service;
 
 import javafx.application.Platform;
+
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -27,11 +28,11 @@ public class ServerListenerService extends Thread {
                     String newLine = scanner.nextLine();
                     System.out.println(newLine);
                     if (mayRead) {
-                        Platform.runLater(() -> this.serverService.handleResponse(newLine));
+                        Platform.runLater(() -> this.serverService.handleResponse(newLine)); //DEze lustert en handled alle commandos
                     } else {
                         this.queue.add(newLine);
                     }
-                }
+                }//miskien kinne we d'r foar kieze om in refresh button te meitsjen. is wol dikke bagger tho ja das gay. ik sil d'r eem mei piele
             } catch (Exception exception) {
                 System.out.println(exception.toString());
             }

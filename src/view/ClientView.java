@@ -11,5 +11,6 @@ import javafx.stage.Stage;
 public class ClientView extends AbstractView {
     public ClientView(Stage stage, ClientController clientController) {
         super(stage, clientController, "/resources/clientview.fxml");
+
     }
 }

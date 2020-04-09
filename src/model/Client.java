@@ -11,6 +11,7 @@ public class Client extends AbstractModel {
     private ArrayList<String> games = new ArrayList<>();
     private ArrayList<String> players = new ArrayList<>();
     private String userName;
+    private String address;
 
     /**
      * @param games ArrayList
@@ -20,6 +21,8 @@ public class Client extends AbstractModel {
         this.games = games;
         return this.games;
     }
+
+
 
     /**
      * @return ArrayList
@@ -41,6 +44,7 @@ public class Client extends AbstractModel {
      * @return ArrayList
      */
     public ArrayList<String> getPlayers() {
+
         return this.players;
     }
 
@@ -52,4 +56,12 @@ public class Client extends AbstractModel {
     public String getUserName() {
         return this.userName;
     }
+
+    public String getAddress() {return this.address;}
+
+    public void setAddress(String address){
+        this.address = address;
+    }
+
+
 }

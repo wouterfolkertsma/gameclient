@@ -10,14 +10,16 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.Integer.parseInt;
+
 /**
  * Class ServerService contains all the communication methods for the server.
  *
  * @author Wouter Folkertsma, Daniël Windstra, Anthonie Ooms
  */
 public class ServerService {
-    private static final String IP_ADDRESS = "127.0.0.1";
-    private static final int PORT = 7789;
+
+
 
     private ServerListenerService serverListener;
     private GameClient gameClient;
@@ -27,8 +29,12 @@ public class ServerService {
     private Scanner scanner;
     private LinkedList<String> queue;
 
-    public ServerService(GameClient gameClient) {
+    private static String IP_ADDRESS;
+    private static int PORT;
+
+    public ServerService(GameClient gameClient, String IP_ADDRESS, int PORT) {
         this.gameClient = gameClient;
+
         this.queue = new LinkedList<>();
 
         try {
@@ -38,9 +44,25 @@ public class ServerService {
             scanner = new Scanner(socket.getInputStream());
 
             this.serverListener = new ServerListenerService(this, scanner, queue);
-        } catch (IOException exception) {
+        } catch (Exception exception) {
             System.out.println(exception.getMessage());
         }
+    }
+
+    public void setIPAdress(String address){
+        IP_ADDRESS = address;
+    }
+
+    public void setPort(int port){
+        PORT = port;
+    }
+
+    public String getIpAddress(){
+        return IP_ADDRESS;
+    }
+
+    public int getPORT(){
+        return PORT;
     }
 
     /**
@@ -103,7 +125,7 @@ public class ServerService {
             this.newMatch(newLine);
         } else if (newLine.contains("SVR GAME MOVE")) {
             this.handleMove(newLine);
-        }
+        } // jir soest et meitsje kinne, en dan this.gameclient.updatePlayers ofsa
     }
 
     private void yourTurn(String newLine) {
@@ -120,7 +142,7 @@ public class ServerService {
 
             switch (key) {
                 case "PLAYER": move.setPlayer(value); break;
-                case "MOVE": move.setMove(Integer.parseInt(value)); break;
+                case "MOVE": move.setMove(parseInt(value)); break;
                 case "DETAILS": move.setDetails(value); break;
             }
         }
@@ -173,6 +195,7 @@ public class ServerService {
     }
 
     public ArrayList<String> getPlayerList() {
+
         ArrayList<String> responseArray = writeLineAndRead("get playerlist");
 
         for (String response : responseArray) {
@@ -206,6 +229,8 @@ public class ServerService {
 
         return responseArray;
     }
+
+
 
     public void getHelp() {
         writeLineAndRead("help");

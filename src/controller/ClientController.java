@@ -10,13 +10,9 @@ import javafx.stage.Window;
 import main.GameClient;
 import model.Challenger;
 import model.Client;
-import model.Game;
-import model.GameType;
 import service.ServerService;
 import view.ClientView;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 
 /**
  * Class ClientController handles all events for the client page.
@@ -27,6 +23,7 @@ public class ClientController extends AbstractController {
     private Client client;
     private ServerService serverService;
     private ClientView clientView;
+    private boolean isMultiPlayer = false;
 
     @FXML
     private ListView<String> playerList;
@@ -36,6 +33,12 @@ public class ClientController extends AbstractController {
 
     @FXML
     private Button challengeButton;
+
+    @FXML
+    private Button singlePlayerButton;
+
+    @FXML
+    private Button multiPlayerButton;
 
     /**
      * @param client Client
@@ -56,9 +59,31 @@ public class ClientController extends AbstractController {
         this.serverService.challengePlayer(currentPlayer, currentGame);
     }
 
+    public void handleSinglePlayerButtonAction(ActionEvent actionEvent){
+        isMultiPlayer = false;
+        Window owner = singlePlayerButton.getScene().getWindow();
+        showTestAlert(owner, "hoi");
+    }
+
+    public void handleMultiPlayerButtonAction(ActionEvent actionEvent){
+        isMultiPlayer = true;
+        Window owner = multiPlayerButton.getScene().getWindow();
+        showTestAlert(owner, "hoi");
+    }
+
+    //delete later.
+    public void showTestAlert(Window owner, String message){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("gelukt");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.initOwner(owner);
+        alert.show();
+    }
+
     public void login() {
-        this.client.setPlayers(this.serverService.getPlayerList());
-        this.client.setGames(this.serverService.getGamesList());
+//        this.client.setPlayers(this.serverService.getPlayerList());
+//        this.client.setGames(this.serverService.getGamesList());
         this.client.getGames().forEach((game) -> this.gamesList.getItems().add(game));
         this.client.getPlayers().forEach((player) -> this.playerList.getItems().add(player));
     }

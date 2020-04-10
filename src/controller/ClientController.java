@@ -24,6 +24,9 @@ public class ClientController extends AbstractController {
     private ServerService serverService;
     private ClientView clientView;
     private boolean isMultiPlayer = false;
+    private String currentGame;
+    private String currentPlayer;
+
 
     @FXML
     private ListView<String> playerList;
@@ -53,25 +56,24 @@ public class ClientController extends AbstractController {
     @SuppressWarnings("unused")
     public void handleSubmitButtonAction(ActionEvent actionEvent) {
         Window owner = challengeButton.getScene().getWindow();
-        String currentGame = this.gamesList.getSelectionModel().getSelectedItem();
-        String currentPlayer = this.playerList.getSelectionModel().getSelectedItem();
+        currentGame = this.gamesList.getSelectionModel().getSelectedItem();
+        currentPlayer = this.playerList.getSelectionModel().getSelectedItem();
 
-        this.serverService.challengePlayer(currentPlayer, currentGame);
+        if (isMultiPlayer) {
+            this.serverService.challengePlayer(currentPlayer, currentGame);
+        } else gameClient.startTicTacToe(); // moet later vervangen worden voor iets van 'currentgame'  Puur voor de test.
+
     }
 
     public void handleSinglePlayerButtonAction(ActionEvent actionEvent){
         isMultiPlayer = false;
-        Window owner = singlePlayerButton.getScene().getWindow();
-        showTestAlert(owner, "hoi");
     }
 
     public void handleMultiPlayerButtonAction(ActionEvent actionEvent){
         isMultiPlayer = true;
-        Window owner = multiPlayerButton.getScene().getWindow();
-        showTestAlert(owner, "hoi");
     }
 
-    //delete later.
+    /*delete later.
     public void showTestAlert(Window owner, String message){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("gelukt");
@@ -79,7 +81,7 @@ public class ClientController extends AbstractController {
         alert.setContentText(message);
         alert.initOwner(owner);
         alert.show();
-    }
+    }*/
 
     public void login() {
 //        this.client.setPlayers(this.serverService.getPlayerList());

@@ -96,7 +96,7 @@ public class GameClient extends Application {
         }
     }
 
-    private void startTicTacToe(Game game) {
+    public void startTicTacToe() {
         this.clientView.hide();
         this.ticTacToeView.show();
     }

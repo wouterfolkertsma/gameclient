@@ -3,7 +3,6 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
-import javafx.scene.shape.Line;
 import model.Move;
 import service.ServerService;
 
@@ -65,9 +64,9 @@ public class ReversiController extends AbstractController{
 
         public void drawToken(char token) {
             if (token == 'W') {
-                drawX();
+                drawWhite();
             } else if (token == 'B') {
-                drawO();
+                drawBlack();
             }
         }
 
@@ -83,18 +82,7 @@ public class ReversiController extends AbstractController{
             }
         }
 
-        private void drawX() {
-            Line line1 = new Line(10, 10, this.getWidth() - 10, this.getHeight() - 10);
-            line1.endXProperty().bind(this.widthProperty().subtract(10));
-            line1.endYProperty().bind(this.heightProperty().subtract(10));
-            Line line2 = new Line(10, this.getHeight() - 10, this.getWidth() - 10, 10);
-            line2.startYProperty().bind(this.heightProperty().subtract(10));
-            line2.endXProperty().bind(this.widthProperty().subtract(10));
-
-            this.getChildren().addAll(line1, line2);
-        }
-
-        private void drawO() {
+        private void drawWhite() {
             Ellipse ellipse = new Ellipse(this.getWidth() / 2,
                     this.getHeight() / 2, this.getWidth() / 2 - 10,
                     this.getHeight() / 2 - 10);
@@ -110,6 +98,26 @@ public class ReversiController extends AbstractController{
                     this.heightProperty().divide(2).subtract(10));
             ellipse.setStroke(Color.BLACK);
             ellipse.setFill(Color.WHITE);
+
+            getChildren().add(ellipse);
+        }
+
+        private void drawBlack() {
+            Ellipse ellipse = new Ellipse(this.getWidth() / 2,
+                    this.getHeight() / 2, this.getWidth() / 2 - 10,
+                    this.getHeight() / 2 - 10);
+            ellipse.centerXProperty().bind(
+                    this.widthProperty().divide(2));
+            ellipse.centerYProperty().bind(
+                    this.heightProperty().divide(2));
+            ellipse.radiusXProperty().bind(
+                    this.widthProperty().divide(2).subtract(10));
+
+
+            ellipse.radiusYProperty().bind(
+                    this.heightProperty().divide(2).subtract(10));
+            ellipse.setStroke(Color.BLACK);
+            ellipse.setFill(Color.BLACK);
 
             getChildren().add(ellipse);
         }
@@ -151,8 +159,8 @@ public class ReversiController extends AbstractController{
     }
 
     public boolean boardIsFull() {
-        for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 3; j++)
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
                 if (cell[i][j].getToken() == ' ')
                     return false;
 
@@ -160,14 +168,14 @@ public class ReversiController extends AbstractController{
     }
 
     public boolean checkIfWon(char token) {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 8; i++)
             if (cell[i][0].getToken() == token
                     && cell[i][1].getToken() == token
                     && cell[i][2].getToken() == token) {
                 return true;
             }
 
-        for (int j = 0; j < 3; j++)
+        for (int j = 0; j < 8; j++)
             if (cell[0][j].getToken() == token
                     && cell[1][j].getToken() == token
                     && cell[2][j].getToken() == token) {
@@ -194,8 +202,8 @@ public class ReversiController extends AbstractController{
         int bestScore = -1000;
         Cell bestCell = cell[0][0];
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 if (cell[i][j].getToken() == ' ') {
 
                     cell[i][j].setToken(whoseTurn);
@@ -229,8 +237,8 @@ public class ReversiController extends AbstractController{
         if (maximise) {
             int bestScore = -1000;
 
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
                     if (cell[i][j].getToken() == ' ') {
                         cell[i][j].setToken(whoseTurn);
                         bestScore = Math.max(bestScore, minimax(depth + 1, false));
@@ -242,8 +250,8 @@ public class ReversiController extends AbstractController{
             return bestScore;
         } else {
             int bestScore = 1000;
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
                     if (cell[i][j].getToken() == ' ') {
                         cell[i][j].setToken(getCurrentOpponent());
                         bestScore = Math.min(bestScore, minimax( depth + 1, true));
@@ -258,7 +266,7 @@ public class ReversiController extends AbstractController{
 
     private int evaluate()
     {
-        for (int row = 0; row < 3; row++)
+        for (int row = 0; row < 8; row++)
         {
             if (cell[row][0].getToken() == cell[row][1].getToken() && cell[row][1].getToken() == cell[row][2].getToken())
             {
@@ -269,7 +277,7 @@ public class ReversiController extends AbstractController{
             }
         }
 
-        for (int col = 0; col < 3; col++)
+        for (int col = 0; col < 8; col++)
         {
             if (cell[0][col].getToken() == cell[1][col].getToken() &&
                     cell[1][col].getToken() == cell[2][col].getToken())

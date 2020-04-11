@@ -1,4 +1,4 @@
-+package main;
+package main;
 
 import controller.ClientController;
 import controller.LoginController;
@@ -45,7 +45,7 @@ public class GameClient extends Application {
         this.loginController = new LoginController(serverService);
         this.loginView = new LoginView(primaryStage, this.loginController);
         this.loginController.setGameClient(this);
-        -// this.serverService = new ServerService(this, getIPAddressAndPort()[0], Integer.parseInt(getIPAddressAndPort()[1]));
+        // this.serverService = new ServerService(this, getIPAddressAndPort()[0], Integer.parseInt(getIPAddressAndPort()[1]));
 
         this.ticTacToeController = new TicTacToeController(serverService);
         this.ticTacToeView = new TicTacToeView(primaryStage, this.ticTacToeController);
@@ -101,7 +101,7 @@ public class GameClient extends Application {
         this.clientView.hide();
         this.ticTacToeView.show();
     }
-    ---------------------------
+    
     public void startTicTacToe(Game game) {
         this.clientView.hide();
         this.ticTacToeView.show();

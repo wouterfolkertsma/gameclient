@@ -61,7 +61,7 @@ public class ClientController extends AbstractController {
 
         if (isMultiPlayer) {
             this.serverService.challengePlayer(currentPlayer, currentGame);
-        } else gameClient.startTicTacToe(); // moet later vervangen worden voor iets van 'currentgame'  Puur voor de test.
+        } else gameClient.startTicTacToe(); // moet later vervangen worden voor iets van 'currentgame'  Dit is Puur voor de test.
 
     }
 

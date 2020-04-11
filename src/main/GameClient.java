@@ -88,7 +88,7 @@ public class GameClient extends Application {
         switch (game.getGameType()) {
             case GameType.TIC_TAC_TOE:
                 this.currentGame = GameType.TIC_TAC_TOE;
-                this.startTicTacToe(game);
+                this.startTicTacToe();
                 break;
             case GameType.REVERSI:
                 this.currentGame = GameType.REVERSI;

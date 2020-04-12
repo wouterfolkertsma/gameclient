@@ -6,14 +6,18 @@ import javafx.scene.shape.Ellipse;
 import model.Move;
 import service.ServerService;
 
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 // EEN AANTAL METHODES MOETEN AANGEPAST WORDEN AAN DE REGELS VAN REVERSI
 public class ReversiController extends AbstractController{
     private char whoseTurn = 'W';
     private Cell[][] cell = new Cell[8][8];
+
     private ServerService serverService;
     private Boolean myTurn = false;
+    private int WScore;
+    private int BScore;
 
     @FXML
     private GridPane grid;
@@ -30,6 +34,15 @@ public class ReversiController extends AbstractController{
                 grid.add(cell[i][j] = new Cell(pos), j, i);
                 pos += 1;
             }
+        setStartPositions();
+
+    }
+
+    public void setStartPositions(){
+        cell[3][3].setToken('W');
+        cell[3][4].setToken('B');
+        cell[4][3].setToken('B');
+        cell[4][4].setToken('W');
     }
 
     public void handleOpponentTurn(Move move) {
@@ -63,10 +76,14 @@ public class ReversiController extends AbstractController{
         }
 
         public void drawToken(char token) {
-            if (token == 'W') {
-                drawWhite();
-            } else if (token == 'B') {
-                drawBlack();
+            for(int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    if (cell[i][j].getToken() == 'W') {
+                        drawWhite();
+                    } else if (cell[i][j].getToken() == 'B') {
+                        drawBlack();
+                    }
+                }
             }
         }
 
@@ -136,6 +153,7 @@ public class ReversiController extends AbstractController{
     }
 
     private void makeMove(int pos) {
+        if(isValidMove())
         this.serverService.makeMove(pos);
     }
 
@@ -166,6 +184,91 @@ public class ReversiController extends AbstractController{
 
         return true;
     }
+
+    private void findLocations(char W, char B, HashMap<Integer, Integer> validLocations) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (cell[i][j].getToken() == B) {
+                    int I = i, J = j;
+                    if (i - 1 >= 0 && j - 1 >= 0 && cell[i - 1][j - 1].getToken() == ' ') {
+                        i = i + 1;
+                        j = j + 1;
+                        while (i < 7 && j < 7 && cell[i][j].getToken() == 'B') {
+                            i++;
+                            j++;
+                        }
+                        if (i <= 7 && j <= 7 && cell[i][j].getToken() == 'W') {
+                            validLocations.put(I - 1, J - 1);
+                        }
+                    }
+                    i = I;
+                    j = J;
+                    if (i - 1 >= 0 && cell[i - 1][j].getToken() == ' ') {
+                        i = i + 1;
+                        while (i < 7 && cell[i][j].getToken() == 'B') i++;
+                        if (i < 7 && cell[i][j].getToken() == 'W') validLocations.put(I - 1, J);
+                    }
+                    i = I;
+                    if (i - 1 >= 0 && j + 1 <= 7 && cell[i - 1][j + 1].getToken() == ' ') {
+                        i = i + 1;
+                        j = j - 1;
+                        while (i < 7 && j > 0 && cell[i][j].getToken() == 'B') {
+                            i++;
+                            j++;
+                        }
+                        if (i <= 7 && j >= 0 && cell[i][j].getToken() == 'W') {
+                            validLocations.put(I - 1, J + 1);
+                        }
+                    }
+                    i = I;
+                    j = J;
+                    if (j - 1 >= 0 && cell[i][j - 1].getToken() == ' ') {
+                        j = j + 1;
+                        while (j < 7 && cell[i][j].getToken() == 'B') j++;
+                        if (j <= 7 && cell[i][j].getToken() == 'W') validLocations.put(I, J - 1);
+                    }
+                    j = J;
+                    if (j + 1 <= 7 && cell[i][j].getToken() == ' ') {
+                        j = j - 1;
+                        while (j > 0 && cell[i][j].getToken() == 'B') j--;
+                        if (j >= 0 && cell[i][j].getToken() == 'W') validLocations.put(I, J + 1);
+                    }
+                    if (i + 1 <= 7 && j - 1 >= 0 && cell[i][j].getToken() == ' ') {
+                        i = i - 1;
+                        j = j + 1;
+                        while (i > 0 && j < 7 && cell[i][j].getToken() == 'B') {
+                            i--;
+                            j++;
+                        }
+                        if (i >= 0 && j <= 7 && cell[i][j].getToken() == 'W') validLocations.put(I + 1, J - 1);
+                    }
+                    if (i + 1 <= 7 && cell[i][j].getToken() == ' ') {
+                        i = i - 1;
+                        while (i > 0 && cell[i][j].getToken() == 'B') i--;
+                        if (i >= 0 && cell[i][j].getToken() == 'W') validLocations.put(I + 1, J);
+                    }
+                    i = I;
+                    if (i + 1 <= 7 && j + 1 <= 7 && cell[i][j].getToken() == ' ') {
+                        i = i - 1;
+                        j = j - 1;
+                        while (i > 0 && j > 0 && cell[i][j].getToken() == 'B') {
+                            i--;
+                            j--;
+                        }
+                        if (i >= 0 && j >= 0 && cell[i][j].getToken() == 'W') validLocations.put(I + 1, J + 1);
+                    }
+                    i = I;
+                    j = J;
+                }
+            }
+        }
+    }
+
+    public boolean isValidMove(){
+        return false;
+    }
+
+
 
     public boolean checkIfWon(char token) {
         for (int i = 0; i < 8; i++)

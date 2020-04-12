@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class ReversiController extends AbstractController{
     private char whoseTurn = 'W';
     private Cell[][] cell = new Cell[8][8];
+    private HashMap<Integer, Integer> validLocations;
 
     private ServerService serverService;
     private Boolean myTurn = false;
@@ -185,7 +186,7 @@ public class ReversiController extends AbstractController{
         return true;
     }
 
-    private void findLocations(HashMap<Integer, Integer> validLocations) {
+    private void findLocations() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (cell[i][j].getToken() == 'B') {
@@ -263,12 +264,6 @@ public class ReversiController extends AbstractController{
             }
         }
     }
-
-    public boolean isValidMove(){
-        return false;
-    }
-
-
 
     public boolean checkIfWon(char token) {
         for (int i = 0; i < 8; i++)

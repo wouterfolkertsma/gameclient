@@ -185,10 +185,10 @@ public class ReversiController extends AbstractController{
         return true;
     }
 
-    private void findLocations(char W, char B, HashMap<Integer, Integer> validLocations) {
+    private void findLocations(HashMap<Integer, Integer> validLocations) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (cell[i][j].getToken() == B) {
+                if (cell[i][j].getToken() == 'B') {
                     int I = i, J = j;
                     if (i - 1 >= 0 && j - 1 >= 0 && cell[i - 1][j - 1].getToken() == ' ') {
                         i = i + 1;

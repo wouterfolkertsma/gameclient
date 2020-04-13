@@ -29,11 +29,12 @@ public class TicTacToeController extends AbstractController {
     public void initialize() {
         int pos = 0;
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 grid.add(cell[i][j] = new Cell(pos), j, i);
                 pos += 1;
             }
+        }
     }
 
     public void setMultiplayer(boolean isMultiplayer) {
@@ -185,6 +186,8 @@ public class TicTacToeController extends AbstractController {
 
         return true;
     }
+
+
 
     public boolean checkIfWon(char token) {
         for (int i = 0; i < 3; i++)

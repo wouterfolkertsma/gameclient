@@ -5,6 +5,6 @@ import javafx.stage.Stage;
 
 public class ReversiView extends AbstractView {
     public ReversiView(Stage stage, ReversiController reversiController) {
-        super(stage, reversiController, "/resources/reversiview.fxml");
+        super(stage, reversiController, "/resources/reversiview.fxml", 800, 800);
     }
 }

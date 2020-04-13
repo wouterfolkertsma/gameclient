@@ -2,6 +2,7 @@ package main;
 
 import controller.ClientController;
 import controller.LoginController;
+import controller.ReversiController;
 import controller.TicTacToeController;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -9,6 +10,7 @@ import model.*;
 import service.ServerService;
 import view.ClientView;
 import view.LoginView;
+import view.ReversiView;
 import view.TicTacToeView;
 
 public class GameClient extends Application {
@@ -18,6 +20,9 @@ public class GameClient extends Application {
 
     private TicTacToeView ticTacToeView;
     private TicTacToeController ticTacToeController;
+
+    private ReversiView reversiView;
+    private ReversiController reversiController;
 
     private Client client;
     private ClientView clientView;
@@ -47,6 +52,9 @@ public class GameClient extends Application {
         this.ticTacToeController = new TicTacToeController(serverService);
         this.ticTacToeView = new TicTacToeView(primaryStage, this.ticTacToeController);
 
+        this.reversiController = new ReversiController(serverService);
+        this.reversiView = new ReversiView(primaryStage, this.reversiController);
+
         this.client = new Client();
         this.clientController = new ClientController(client, serverService, this);
 
@@ -66,7 +74,6 @@ public class GameClient extends Application {
         this.client.setUserName(text);
         this.client.setAddress(address);
         this.clientController.login();
-
 
         this.clientView.show();
     }
@@ -104,6 +111,8 @@ public class GameClient extends Application {
     public void handleMove(Move move) {
         if (this.currentGame.equals(GameType.TIC_TAC_TOE))
             this.ticTacToeController.handleOpponentTurn(move);
+        if(this.currentGame.equals(GameType.REVERSI))
+            this.reversiController.handleOpponentTurn(move);
     }
 
     public void yourTurn() {

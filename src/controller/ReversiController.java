@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 public class ReversiController extends AbstractController{
     private char whoseTurn = 'W';
     private Cell[][] cell = new Cell[8][8];
-    private HashMap<Integer, Integer> validLocations;
 
     private ServerService serverService;
     private Boolean myTurn = false;
@@ -57,8 +56,8 @@ public class ReversiController extends AbstractController{
         Cell currentCell = cell[row][column];
         currentCell.setToken(whoseTurn);
         currentCell.drawToken(whoseTurn);
-        checkGameStatus();
     }
+
 
     public class Cell extends Pane {
         private char token = ' ';
@@ -66,7 +65,7 @@ public class ReversiController extends AbstractController{
 
         public Cell(int pos) {
             this.pos = pos;
-            setStyle("-fx-border-color: bldsasdaack");
+            setStyle("-fx-border-color: black");
             this.setPrefSize(2000, 2000);
             this.setOnMouseClicked(e -> handleMouseClick());
         }
@@ -80,14 +79,10 @@ public class ReversiController extends AbstractController{
         }
 
         public void drawToken(char token) {
-            for(int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) {
-                    if (cell[i][j].getToken() == 'W') {
-                        drawWhite();
-                    } else if (cell[i][j].getToken() == 'B') {
-                        drawBlack();
-                    }
-                }
+            if (token == 'W') {
+                drawWhite();
+            } else if (token == 'B') {
+                drawBlack();
             }
         }
 
@@ -97,13 +92,26 @@ public class ReversiController extends AbstractController{
                 setToken(whoseTurn);
                 drawToken(whoseTurn);
                 makeMove(this.pos);
-                checkGameStatus();
                 this.setDisable(true);
+                flipColor();
                 myTurn = false;
+
             }
         }
 
-        private void drawWhite() {
+        public void flipColor(){
+            for(int i = 0;  i<8; i++){
+                for(int j = 0; j<8; j++){
+                    if (cell[i][j].getToken() == 'W') {
+                        drawWhite();
+                    } else if (cell[i][j].getToken() == 'B') {
+                        drawBlack();
+                    }
+                }
+            }
+        }
+
+        private void drawWhite(){
             Ellipse ellipse = new Ellipse(this.getWidth() / 2,
                     this.getHeight() / 2, this.getWidth() / 2 - 10,
                     this.getHeight() / 2 - 10);
@@ -141,29 +149,16 @@ public class ReversiController extends AbstractController{
         }
     }
 
+    //Deze klasse is niets meer dan een intpaar. dit om coördinaten in op te slaan.
     public class Point {
-        int x, y;
+        int a, b;
 
-        Point(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "[" + x + ", " + y + "]";
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o.hashCode() == this.hashCode();
-        }
-
-        @Override
-        public int hashCode() {
-            return Integer.parseInt(x + "" + y);
+        Point(int a, int b) {
+            this.a = a;
+            this.b = b;
         }
     }
+
 
     public int gameResult(Set<Point> whitePlaceableLocations, Set<Point> blackPlaceableLocations){
         updateScores();
@@ -184,28 +179,17 @@ public class ReversiController extends AbstractController{
         return -2;
     }
 
+    public HashSet<Point> getPlaceableLocations(char player, char opponent){
+        HashSet<Point> placeablePositions = new HashSet<>();
+        findPlaceableLocations(player, opponent, placeablePositions);
+        return placeablePositions;
+    }
+
+    // TODO: uitzoeken hoe dit werkt.
     private void makeMove(int pos) {
         this.serverService.makeMove(pos);
     }
 
-    public void setMyTurn() {
-        myTurn = true;
-
-        try {
-            TimeUnit.MILLISECONDS.sleep(400);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        Cell bestCell = calculateBestMove();
-        bestCell.setToken(whoseTurn);
-        bestCell.drawToken(whoseTurn);
-        makeMove(bestCell.pos);
-        checkGameStatus();
-        bestCell.setDisable(true);
-
-        myTurn = false;
-    }
 
     public boolean cellIsFull() {
         for (int i = 0; i < 8; i++)
@@ -215,7 +199,7 @@ public class ReversiController extends AbstractController{
 
         return true;
     }
-
+        // vindt alle locaties waar een zet gemaakt mag worden.
         private void findPlaceableLocations(char player, char opponent, HashSet<Point> placeablePositions){
             for(int i=0;i<8;++i) {
                 for(int j=0;j<8;++j) {
@@ -235,43 +219,56 @@ public class ReversiController extends AbstractController{
                         i=I;j=J;
                         if(i-1>=0 && cell[i-1][j].getToken() == ' '){
                             i = i+1;
-                            while(i<7 && cell[i][j].getToken() == opponent) i++;
+                            while(i<7 && cell[i][j].getToken() == opponent)
+                                i++;
                             if(i<=7 && cell[i][j].getToken() == player) placeablePositions.add(new Point(I-1, J));
                         }
                         i=I;
                         if(i-1>=0 && j+1<=7 && cell[i-1][j+1].getToken() == ' '){
                             i = i+1; j = j-1;
-                            while(i<7 && j>0 && cell[i][j].getToken() == opponent){i++;j--;}
+                            while(i<7 && j>0 && cell[i][j].getToken() == opponent){
+                                i++;
+                                j--;
+                            }
                             if(i<=7 && j>=0 && cell[i][j].getToken() == player) placeablePositions.add(new Point(I-1, J+1));
                         }
                         i=I;j=J;
                         if(j-1>=0 && cell[i][j-1].getToken() == ' '){
                             j = j+1;
-                            while(j<7 && cell[i][j].getToken() == opponent)j++;
+                            while(j<7 && cell[i][j].getToken() == opponent)
+                                j++;
                             if(j<=7 && cell[i][j].getToken() == player) placeablePositions.add(new Point(I, J-1));
                         }
                         j=J;
                         if(j+1<=7 && cell[i][j+1].getToken() == ' '){
                             j=j-1;
-                            while(j>0 && cell[i][j].getToken() == opponent)j--;
+                            while(j>0 && cell[i][j].getToken() == opponent)
+                                j--;
                             if(j>=0 && cell[i][j].getToken() == player) placeablePositions.add(new Point(I, J+1));
                         }
                         j=J;
                         if(i+1<=7 && j-1>=0 && cell[i+1][j-1].getToken() == ' '){
                             i=i-1;j=j+1;
-                            while(i>0 && j<7 && cell[i][j].getToken() == opponent){i--;j++;}
+                            while(i>0 && j<7 && cell[i][j].getToken() == opponent){
+                                i--;
+                                j++;
+                            }
                             if(i>=0 && j<=7 && cell[i][j].getToken() == player) placeablePositions.add(new Point(I+1, J-1));
                         }
                         i=I;j=J;
                         if(i+1 <= 7 && cell[i+1][j].getToken() == ' '){
                             i=i-1;
-                            while(i>0 && cell[i][j].getToken() == opponent) i--;
+                            while(i>0 && cell[i][j].getToken() == opponent)
+                                i--;
                             if(i>=0 && cell[i][j].getToken() == player) placeablePositions.add(new Point(I+1, J));
                         }
                         i=I;
                         if(i+1 <= 7 && j+1 <=7 && cell[i+1][j+1].getToken() == ' '){
                             i=i-1;j=j-1;
-                            while(i>0 && j>0 && cell[i][j].getToken() == opponent){i--;j--;}
+                            while(i>0 && j>0 && cell[i][j].getToken() == opponent) {
+                                i--;
+                                j--;
+                            }
                             if(i>=0 && j>=0 && cell[i][j].getToken() == player)placeablePositions.add(new Point(I+1, J+1));
                         }
                         i=I;j=J;
@@ -280,105 +277,104 @@ public class ReversiController extends AbstractController{
             }
         }
 
-
+        // doet een zet en keert daarbij de token van alle andere stenen om. gebaseerd op coördinaat.
         public void placeMove(Point p, char player, char opponent){
-            int i = p.x, j = p.y;
+            int i = p.a, j = p.b;
             cell[i][j].setToken(player);
             int I = i, J = j;
 
             if(i-1>=0 && j-1>=0 && cell[i-1][j-1].getToken() == opponent){
                 i = i-1; j = j-1;
                 while(i>0 && j>0 && cell[i][j].getToken() == opponent){i--;j--;}
-                if(i>=0 && j>=0 && cell[i][j].getToken() == player) {while(i!=I-1 && j!=J-1)cell[++i][++j].setToken(player);}
+                if(i>=0 && j>=0 && cell[i][j].getToken() == player) {
+                    while(i!=I-1 && j!=J-1)
+                        cell[++i][++j].setToken(player);
+                }
             }
             i=I;j=J;
             if(i-1>=0 && cell[i-1][j].getToken() == opponent){
                 i = i-1;
                 while(i>0 && cell[i][j].getToken() == opponent) i--;
-                if(i>=0 && cell[i][j].getToken() == player) {while(i!=I-1)cell[++i][j].setToken(player);}
+                if(i>=0 && cell[i][j].getToken() == player) {
+                    while(i!=I-1)
+                        cell[++i][j].setToken(player);
+                }
             }
             i=I;
             if(i-1>=0 && j+1<=7 && cell[i-1][j+1].getToken() == opponent){
                 i = i-1; j = j+1;
-                while(i>0 && j<7 && cell[i][j].getToken() == opponent){i--;j++;}
-                if(i>=0 && j<=7 && cell[i][j].getToken() == player) {while(i!=I-1 && j!=J+1)cell[++i][--j].setToken(player);;}
+                while(i>0 && j<7 && cell[i][j].getToken() == opponent){
+                    i--;
+                    j++;
+                }
+                if(i>=0 && j<=7 && cell[i][j].getToken() == player) {
+                    while (i != I - 1 && j != J + 1)
+                        cell[++i][--j].setToken(player);
+                }
             }
             i=I;j=J;
             if(j-1>=0 && cell[i][j-1].getToken() == opponent){
                 j = j-1;
-                while(j>0 && cell[i][j].getToken() == opponent)j--;
-                if(j>=0 && cell[i][j].getToken() == player) {while(j!=J-1)cell[i][++j].setToken(player);;}
+                while(j>0 && cell[i][j].getToken() == opponent)
+                        j--;
+                if(j>=0 && cell[i][j].getToken() == player) {while(j!=J-1)
+                    cell[i][++j].setToken(player);
+                }
             }
             j=J;
             if(j+1<=7 && cell[i][j+1].getToken() == opponent){
                 j=j+1;
-                while(j<7 && cell[i][j].getToken() == opponent)j++;
-                if(j<=7 && cell[i][j].getToken() == player) {while(j!=J+1)cell[i][--j].setToken(player);;}
+                while(j<7 && cell[i][j].getToken() == opponent)
+                    j++;
+                if(j<=7 && cell[i][j].getToken() == player) {
+                    while(j!=J+1)cell[i][--j].setToken(player);
+                }
             }
             j=J;
             if(i+1<=7 && j-1>=0 && cell[i+1][j-1].getToken() == opponent){
                 i=i+1;j=j-1;
-                while(i<7 && j>0 && cell[i][j].getToken() == opponent){i++;j--;}
-                if(i<=7 && j>=0 && cell[i][j].getToken() == player) {while(i!=I+1 && j!=J-1)cell[--i][++j].setToken(player); }
+                while(i<7 && j>0 && cell[i][j].getToken() == opponent){
+                    i++;
+                    j--;
+                }
+                if(i<=7 && j>=0 && cell[i][j].getToken() == player) {while(i!=I+1 && j!=J-1)
+                    cell[--i][++j].setToken(player);
+                }
             }
             i=I;j=J;
             if(i+1 <= 7 && cell[i+1][j].getToken() == opponent){
                 i=i+1;
-                while(i<7 && cell[i][j].getToken() == opponent) i++;
-                if(i<=7 && cell[i][j].getToken() == player) {while(i!=I+1)cell[--i][j].setToken(player);;}
+                while(i<7 && cell[i][j].getToken() == opponent)
+                    i++;
+                if(i<=7 && cell[i][j].getToken() == player) {
+                    while(i!=I+1)
+                        cell[--i][j].setToken(player);
+                }
             }
             i=I;
 
             if(i+1 <= 7 && j+1 <=7 && cell[i+1][j+1].getToken() == opponent){
                 i=i+1;j=j+1;
                 while(i<7 && j<7 && cell[i][j].getToken() == opponent){i++;j++;}
-                if(i<=7 && j<=7 && cell[i][j].getToken() == player)while(i!=I+1 && j!=J+1)cell[--i][--j].setToken(player);}
+                if(i<=7 && j<=7 && cell[i][j].getToken() == player)
+                    while(i!=I+1 && j!=J+1)
+                        cell[--i][--j].setToken(player);
+            }
         }
-    }
+
 
     public void updateScores() {
         WScore = 0; BScore = 0; remaining = 0;
         for(int i=0;i<8;++i){
             for(int j=0;j<8;++j){
-                if(board[i][j]=='W')WScore++;
-                else if(board[i][j]=='B')BScore++;
+                if(cell[i][j].getToken()=='W') WScore++;
+                else if(cell[i][j].getToken()=='B') BScore++;
                 else remaining++;
             }
         }
     }
 
 
-
-    public boolean checkIfWon(char token) {
-        for (int i = 0; i < 8; i++)
-            if (cell[i][0].getToken() == token
-                    && cell[i][1].getToken() == token
-                    && cell[i][2].getToken() == token) {
-                return true;
-            }
-
-        for (int j = 0; j < 8; j++)
-            if (cell[0][j].getToken() == token
-                    && cell[1][j].getToken() == token
-                    && cell[2][j].getToken() == token) {
-                return true;
-            }
-
-        if (cell[0][0].getToken() == token
-                && cell[1][1].getToken() == token
-                && cell[2][2].getToken() == token) {
-            return true;
-        }
-
-        if (cell[0][2].getToken() == token
-                && cell[1][1].getToken() == token
-                && cell[2][0].getToken() == token) {
-            return true;
-        }
-
-        return false;
-
-    }
 
     public Cell calculateBestMove() {
         int bestScore = -1000;

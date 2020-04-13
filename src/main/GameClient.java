@@ -11,8 +11,6 @@ import view.ClientView;
 import view.LoginView;
 import view.TicTacToeView;
 
-
-
 public class GameClient extends Application {
     private ServerService serverService;
     private LoginView loginView;
@@ -26,9 +24,7 @@ public class GameClient extends Application {
     private ClientController clientController;
 
     private String currentGame;
-    private String address;
-
-
+    private String[] address;
 
 
     /**
@@ -42,10 +38,11 @@ public class GameClient extends Application {
      * @param primaryStage Stage
      */
     public void start(Stage primaryStage) throws Exception {
+        this.serverService = new ServerService(this);
+
         this.loginController = new LoginController(serverService);
         this.loginView = new LoginView(primaryStage, this.loginController);
         this.loginController.setGameClient(this);
-        // this.serverService = new ServerService(this, getIPAddressAndPort()[0], Integer.parseInt(getIPAddressAndPort()[1]));
 
         this.ticTacToeController = new TicTacToeController(serverService);
         this.ticTacToeView = new TicTacToeView(primaryStage, this.ticTacToeController);
@@ -53,9 +50,7 @@ public class GameClient extends Application {
         this.client = new Client();
         this.clientController = new ClientController(client, serverService, this);
 
-
         this.clientView = new ClientView(primaryStage, this.clientController);
-
         this.clientController.setClientView(clientView);
 
 //        this.ticTacToeView.show();
@@ -63,22 +58,17 @@ public class GameClient extends Application {
     }
 
     public void login(String text, String address) {
-        try{
-        this.address = address;
-        this.serverService = new ServerService(this, getIPAddressAndPort()[0], Integer.parseInt(getIPAddressAndPort()[1]));
+        this.address = getIPAddressAndPort(address);
+
+        this.serverService.establishConnection(this.address[0], Integer.parseInt(this.address[1]));
         this.loginView.hide();
+
         this.client.setUserName(text);
         this.client.setAddress(address);
-
-        this.client.setPlayers(this.serverService.getPlayerList());
-        this.client.setGames(this.serverService.getGamesList());
         this.clientController.login();
 
 
         this.clientView.show();
-        }catch (Exception exception){
-            System.out.println("Er ging iets mis, weet je zeker dat het juiste adres is ingevuld?");
-        }
     }
 
     public void incomingChallenge(Challenger challenger) {
@@ -89,7 +79,7 @@ public class GameClient extends Application {
         switch (game.getGameType()) {
             case GameType.TIC_TAC_TOE:
                 this.currentGame = GameType.TIC_TAC_TOE;
-                this.startTicTacToe(game);
+                this.startTicTacToe();
                 break;
             case GameType.REVERSI:
                 this.currentGame = GameType.REVERSI;
@@ -121,14 +111,11 @@ public class GameClient extends Application {
             this.ticTacToeController.setMyTurn();
     }
 
-    public String[] getIPAddressAndPort(){
-        address.replace(" ", "");
+    public String[] getIPAddressAndPort(String address) {
         String[] addressArray;
-        addressArray = address.split(",");
+        String stripped = address.replace(" ", "");
+        addressArray = stripped.split(",");
 
         return addressArray;
     }
-
-
-
 }

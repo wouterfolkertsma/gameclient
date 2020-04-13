@@ -52,6 +52,10 @@ SplitPane, GridPane, AnchorPane {
     -fx-height: 100%;
 }
 
-.test {
+.hide {
     -fx-visibility: hidden;
+}
+
+.active {
+
 }

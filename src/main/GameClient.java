@@ -49,7 +49,7 @@ public class GameClient extends Application {
         this.loginView = new LoginView(primaryStage, this.loginController);
         this.loginController.setGameClient(this);
 
-        this.ticTacToeController = new TicTacToeController(serverService);
+        this.ticTacToeController = new TicTacToeController(serverService, this);
         this.ticTacToeView = new TicTacToeView(primaryStage, this.ticTacToeController);
 
         this.reversiController = new ReversiController(serverService);
@@ -61,7 +61,6 @@ public class GameClient extends Application {
         this.clientView = new ClientView(primaryStage, this.clientController);
         this.clientController.setClientView(clientView);
 
-//        this.ticTacToeView.show();
         this.loginView.show();
     }
 
@@ -82,30 +81,29 @@ public class GameClient extends Application {
         this.clientController.incomingChallenge(challenger);
     }
 
-    public void startGame(Game game) {
+    public void startGame(Game game, boolean isMultiplayer) {
         switch (game.getGameType()) {
             case GameType.TIC_TAC_TOE:
                 this.currentGame = GameType.TIC_TAC_TOE;
-                this.startTicTacToe();
+                this.startTicTacToe(isMultiplayer);
                 break;
             case GameType.REVERSI:
                 this.currentGame = GameType.REVERSI;
+                this.startReversi(isMultiplayer);
                 break;
         }
     }
 
-    public void startTicTacToe() {
+    public void startTicTacToe(boolean isMultiplayer) {
         this.clientView.hide();
         this.ticTacToeView.show();
+        this.ticTacToeController.setMultiplayer(isMultiplayer);
     }
 
-    public void startTicTacToe(Game game) {
+    public void startReversi(boolean isMultiplayer) {
         this.clientView.hide();
-        this.ticTacToeView.show();
-    }
-
-    public void makeMoveTicTacToe(String turnMessage) {
-//        this.ticTacToeController.handleOpponentTurn(turnMessage);
+        this.reversiView.show();
+        this.reversiController.setMultiplayer(isMultiplayer);
     }
 
     public void handleMove(Move move) {
@@ -118,6 +116,8 @@ public class GameClient extends Application {
     public void yourTurn() {
         if (this.currentGame.equals(GameType.TIC_TAC_TOE))
             this.ticTacToeController.setMyTurn();
+        if (this.currentGame.equals(GameType.REVERSI))
+            this.reversiController.setMyTurn();
     }
 
     public String[] getIPAddressAndPort(String address) {
@@ -126,5 +126,10 @@ public class GameClient extends Application {
         addressArray = stripped.split(",");
 
         return addressArray;
+    }
+
+    public void endTicTactToe() {
+        this.ticTacToeView.hide();
+        this.clientView.show();
     }
 }

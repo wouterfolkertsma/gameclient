@@ -21,14 +21,15 @@
         <items>
           <AnchorPane id="leftPane" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <Button id="singleplayer" onAction="#handleSinglePlayerButtonAction" fx:id = "singlePlayerButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="182.0" styleClass="btn" text="Singleplayer" />
-                  <Button id="multiplayer" onAction="#handleMultiPlayerButtonAction" fx:id = "multiPlayerButton" layoutY="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="182" styleClass="btn" text="Multiplayer" />
+                  <Button id="singleplayer" onAction="#handleTabAction" fx:id = "singlePlayerButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="182.0" styleClass="btn" text="Singleplayer" />
+                  <Button id="multiplayer" onAction="#handleTabAction" fx:id = "multiPlayerButton" layoutY="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="182" styleClass="btn" text="Multiplayer" />
                </children></AnchorPane>
             <AnchorPane id="rightPane" minHeight="0.0" minWidth="0.0" prefHeight="351.0" prefWidth="289.0">
                <children>
                   <ListView id="gamesList" fx:id="gamesList" prefHeight="440.0" prefWidth="220.0" />
                   <ListView id="playerList" fx:id="playerList" layoutX="220.0" prefHeight="440.0" prefWidth="220.0" />
-                  <Button   id="challengeButton" onAction="#handleSubmitButtonAction" fx:id="challengeButton" layoutX="460.0" layoutY="20.0" prefWidth="120.0" mnemonicParsing="false" text="Challenge" />
+                   <Button id="startSinglePlayerButton" onAction="#handleSubmitButtonAction" fx:id="startSinglePlayerButton" layoutX="240.0" layoutY="20.0" prefWidth="120.0" mnemonicParsing="false" text="Play" />
+                   <Button id="challengeButton" onAction="#handleSubmitButtonAction" fx:id="challengeButton" layoutX="460.0" layoutY="20.0" prefWidth="120.0" mnemonicParsing="false" text="Challenge" />
                </children>
             </AnchorPane>
         </items>

@@ -17,7 +17,7 @@ public abstract class AbstractView {
     private Scene scene;
     private AbstractController controller;
 
-    AbstractView(Stage stage, AbstractController controller, String fxmlView) {
+    AbstractView(Stage stage, AbstractController controller, String fxmlView, int width, int height) {
         this.stage = stage;
         this.controller = controller;
 
@@ -25,7 +25,7 @@ public abstract class AbstractView {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlView));
             loader.setController(controller);
             Parent root = loader.load();
-            this.scene = new Scene(root, 800, 500);
+            this.scene = new Scene(root, width, height);
         } catch (Exception e) {
             System.out.println(e);
         }

@@ -5,6 +5,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
+import main.GameClient;
 import model.Move;
 import service.ServerService;
 
@@ -15,22 +16,29 @@ public class TicTacToeController extends AbstractController {
     private Cell[][] cell = new Cell[3][3];
     private ServerService serverService;
     private Boolean myTurn = false;
+    private Boolean isMultiplayer = false;
 
     @FXML
     private GridPane grid;
 
-    public TicTacToeController(ServerService serverService) {
+    public TicTacToeController(ServerService serverService, GameClient gameClient) {
         this.serverService = serverService;
+        this.gameClient = gameClient;
     }
 
     public void initialize() {
         int pos = 0;
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 grid.add(cell[i][j] = new Cell(pos), j, i);
                 pos += 1;
             }
+        }
+    }
+
+    public void setMultiplayer(boolean isMultiplayer) {
+        this.isMultiplayer = isMultiplayer;
     }
 
     public void handleOpponentTurn(Move move) {
@@ -50,7 +58,7 @@ public class TicTacToeController extends AbstractController {
 
         public Cell(int pos) {
             this.pos = pos;
-            setStyle("-fx-border-color: bldsasdaack");
+            setStyle("-fx-border-color: black");
             this.setPrefSize(2000, 2000);
             this.setOnMouseClicked(e -> handleMouseClick());
         }
@@ -64,6 +72,7 @@ public class TicTacToeController extends AbstractController {
         }
 
         public void drawToken(char token) {
+            System.out.println("DRAWING ON " + this.pos);
             if (token == 'X') {
                 drawX();
             } else if (token == 'O') {
@@ -73,13 +82,17 @@ public class TicTacToeController extends AbstractController {
 
         /* Handle a mouse click event */
         private void handleMouseClick() {
-            if (token == ' ' && whoseTurn != ' ' && myTurn) {
+            if (!isMultiplayer && token == ' ' && whoseTurn != ' ') {
                 setToken(whoseTurn);
                 drawToken(whoseTurn);
-                makeMove(this.pos);
                 checkGameStatus();
                 this.setDisable(true);
                 myTurn = false;
+
+                Cell bestCell = calculateBestMove();
+                bestCell.setToken(whoseTurn);
+                bestCell.drawToken(whoseTurn);
+                checkGameStatus();
             }
         }
 
@@ -105,7 +118,6 @@ public class TicTacToeController extends AbstractController {
             ellipse.radiusXProperty().bind(
                     this.widthProperty().divide(2).subtract(10));
 
-
             ellipse.radiusYProperty().bind(
                     this.heightProperty().divide(2).subtract(10));
             ellipse.setStroke(Color.BLACK);
@@ -119,12 +131,28 @@ public class TicTacToeController extends AbstractController {
         if (checkIfWon(whoseTurn)) {
             System.out.print(whoseTurn + " won! The game is over\n");
             whoseTurn = ' '; // Game is over
+            this.resetGame();
         } else if (boardIsFull()) {
             System.out.print("Draw! The game is over\n");
             whoseTurn = ' '; // Game is over
+            this.resetGame();
         } else {
             whoseTurn = (whoseTurn == 'X') ? 'O' : 'X';
         }
+    }
+
+    private void resetGame() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                Cell currentCell = cell[i][j];
+                currentCell.setToken(' ');
+                currentCell.getChildren().clear();
+            }
+        }
+
+        whoseTurn = 'X';
+
+        this.gameClient.endTicTactToe();
     }
 
     private void makeMove(int pos) {
@@ -204,7 +232,6 @@ public class TicTacToeController extends AbstractController {
                     int score = minimax(0, false);
                     cell[i][j].setToken(' ');
 
-                    System.out.println(score);
                     if (score > bestScore) {
                         bestScore = score;
                         bestCell = cell[i][j];
@@ -219,9 +246,6 @@ public class TicTacToeController extends AbstractController {
 
     private int minimax(int depth, boolean maximise) {
         int score = evaluate();
-
-        System.out.println("SCORE " + score);
-
         if (score == 10 || score == -10)
             return score;
 

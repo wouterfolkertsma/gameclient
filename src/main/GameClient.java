@@ -13,6 +13,8 @@ import view.LoginView;
 import view.ReversiView;
 import view.TicTacToeView;
 
+import java.util.ArrayList;
+
 public class GameClient extends Application {
     private ServerService serverService;
     private LoginView loginView;
@@ -81,32 +83,36 @@ public class GameClient extends Application {
         this.clientController.incomingChallenge(challenger);
     }
 
-    public void startGame(Game game, boolean isMultiplayer) {
+    public void startGame(Game game, boolean isMultiplayer, boolean isBot) {
         switch (game.getGameType()) {
             case GameType.TIC_TAC_TOE:
                 this.currentGame = GameType.TIC_TAC_TOE;
-                this.startTicTacToe(isMultiplayer);
+                this.startTicTacToe(isMultiplayer, isBot);
                 break;
             case GameType.REVERSI:
                 this.currentGame = GameType.REVERSI;
-                this.startReversi(isMultiplayer);
+                this.startReversi(isMultiplayer, isBot);
                 break;
         }
     }
 
-    public void startTicTacToe(boolean isMultiplayer) {
+    public void startTicTacToe(boolean isMultiplayer, boolean isBot) {
         this.clientView.hide();
         this.ticTacToeView.show();
-        this.ticTacToeController.setMultiplayer(isMultiplayer);
+        this.ticTacToeController.setGameState(isMultiplayer, isBot);
     }
 
-    public void startReversi(boolean isMultiplayer) {
+    public void startReversi(boolean isMultiplayer, boolean isBot) {
         this.clientView.hide();
         this.reversiView.show();
-        this.reversiController.setMultiplayer(isMultiplayer);
+        this.reversiController.setGameState(isMultiplayer, isBot);
     }
 
     public void handleMove(Move move) {
+        if (move.getPlayer().equals(this.client.getUserName())) {
+            return;
+        }
+
         if (this.currentGame.equals(GameType.TIC_TAC_TOE))
             this.ticTacToeController.handleOpponentTurn(move);
         if(this.currentGame.equals(GameType.REVERSI))
@@ -131,5 +137,13 @@ public class GameClient extends Application {
     public void endTicTactToe() {
         this.ticTacToeView.hide();
         this.clientView.show();
+    }
+
+    public void setPlayerList(ArrayList<String> playerList) {
+        this.clientController.setPlayerList(playerList);
+    }
+
+    public void setGameList(ArrayList<String> gameList) {
+        this.clientController.setGamesList(gameList);
     }
 }

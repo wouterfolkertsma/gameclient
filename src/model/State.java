@@ -16,7 +16,6 @@ public class State extends AbstractModel {
     public String getState(){
         return state;
     }
-
 }
 
 

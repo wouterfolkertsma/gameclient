@@ -16,7 +16,6 @@ public class TicTacToeController extends AbstractController {
     private Cell[][] cell = new Cell[3][3];
     private ServerService serverService;
     private Boolean myTurn = false;
-    private Boolean isMultiplayer = false;
 
     @FXML
     private GridPane grid;
@@ -35,10 +34,6 @@ public class TicTacToeController extends AbstractController {
                 pos += 1;
             }
         }
-    }
-
-    public void setMultiplayer(boolean isMultiplayer) {
-        this.isMultiplayer = isMultiplayer;
     }
 
     public void handleOpponentTurn(Move move) {
@@ -63,7 +58,7 @@ public class TicTacToeController extends AbstractController {
             this.setOnMouseClicked(e -> handleMouseClick());
         }
 
-        public char getToken() {
+        char getToken() {
             return token;
         }
 
@@ -82,17 +77,28 @@ public class TicTacToeController extends AbstractController {
 
         /* Handle a mouse click event */
         private void handleMouseClick() {
+            System.out.println(myTurn);
             if (!isMultiplayer && token == ' ' && whoseTurn != ' ') {
                 setToken(whoseTurn);
                 drawToken(whoseTurn);
                 checkGameStatus();
                 this.setDisable(true);
-                myTurn = false;
 
-                Cell bestCell = calculateBestMove();
-                bestCell.setToken(whoseTurn);
-                bestCell.drawToken(whoseTurn);
+                if (isBot) {
+                    Cell bestCell = calculateBestMove();
+                    bestCell.setToken(whoseTurn);
+                    bestCell.drawToken(whoseTurn);
+                    checkGameStatus();
+                }
+            }
+            else if (isMultiplayer && token == ' ' && whoseTurn != ' ' && myTurn) {
+                setToken(whoseTurn);
+                drawToken(whoseTurn);
                 checkGameStatus();
+                makeMove(pos);
+                this.setDisable(true);
+
+                myTurn = false;
             }
         }
 
@@ -162,20 +168,22 @@ public class TicTacToeController extends AbstractController {
     public void setMyTurn() {
         myTurn = true;
 
-        try {
-            TimeUnit.MILLISECONDS.sleep(400);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (isBot) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            Cell bestCell = calculateBestMove();
+            bestCell.setToken(whoseTurn);
+            bestCell.drawToken(whoseTurn);
+            makeMove(bestCell.pos);
+            checkGameStatus();
+            bestCell.setDisable(true);
+
+            myTurn = false;
         }
-
-        Cell bestCell = calculateBestMove();
-        bestCell.setToken(whoseTurn);
-        bestCell.drawToken(whoseTurn);
-        makeMove(bestCell.pos);
-        checkGameStatus();
-        bestCell.setDisable(true);
-
-        myTurn = false;
     }
 
     public boolean boardIsFull() {
@@ -186,8 +194,6 @@ public class TicTacToeController extends AbstractController {
 
         return true;
     }
-
-
 
     public boolean checkIfWon(char token) {
         for (int i = 0; i < 3; i++)

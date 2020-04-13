@@ -2,10 +2,7 @@ package controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.stage.Window;
 import main.GameClient;
 import model.Challenger;
@@ -14,6 +11,8 @@ import model.Game;
 import model.GameType;
 import service.ServerService;
 import view.ClientView;
+
+import java.util.ArrayList;
 
 
 /**
@@ -29,7 +28,6 @@ public class ClientController extends AbstractController {
     private String currentGame;
     private String currentPlayer;
 
-
     @FXML
     private ListView<String> playerList;
 
@@ -40,13 +38,19 @@ public class ClientController extends AbstractController {
     private Button challengeButton;
 
     @FXML
-    private Button startSinglePlayerButton;
+    private Button singleVsBot;
+
+    @FXML
+    private Button singleVsSelf;
 
     @FXML
     private Button singlePlayerButton;
 
     @FXML
     private Button multiPlayerButton;
+
+    @FXML
+    private CheckBox isBot;
 
     /**
      * @param client Client
@@ -57,16 +61,25 @@ public class ClientController extends AbstractController {
         this.gameClient = gameClient;
     }
 
+    public void handleCheckboxAction(ActionEvent actionEvent) {
+        this.serverService.setIsBot(isBot.isSelected());
+    }
+
     @SuppressWarnings("unused")
     public void handleSubmitButtonAction(ActionEvent actionEvent) {
         Window owner = challengeButton.getScene().getWindow();
         currentGame = this.gamesList.getSelectionModel().getSelectedItem();
 
-        if (startSinglePlayerButton == actionEvent.getTarget()) {
-            Game game = new Game();
-            game.setGameType(currentGame);
-            this.gameClient.startGame(game, false);
-        } else if (challengeButton == actionEvent.getTarget()){
+        Game game = new Game();
+        game.setGameType(currentGame);
+
+        if (singleVsBot == actionEvent.getTarget()) {
+            this.gameClient.startGame(game, false, true);
+        }
+        else if (singleVsSelf == actionEvent.getTarget()){
+            this.gameClient.startGame(game, false, false);
+        }
+        else if (challengeButton == actionEvent.getTarget()){
             currentPlayer = this.playerList.getSelectionModel().getSelectedItem();
             this.serverService.challengePlayer(currentPlayer, currentGame);
         }
@@ -84,23 +97,24 @@ public class ClientController extends AbstractController {
 
     public void login() {
         this.serverService.login(this.client.getUserName());
-        this.client.setPlayers(this.serverService.getPlayerList());
-        this.client.setGames(this.serverService.getGamesList());
+        this.serverService.getPlayerList();
+        this.serverService.getGamesList();
 
         this.enableMultiplayer(false);
-
-        this.client.getGames().forEach((game) -> this.gamesList.getItems().add(game));
-        this.client.getPlayers().forEach((player) -> this.playerList.getItems().add(player));
     }
 
     private void enableMultiplayer(boolean enable) {
         this.isMultiPlayer = enable;
         this.playerList.setVisible(enable);
         this.playerList.setManaged(enable);
-        this.startSinglePlayerButton.setVisible(!enable);
-        this.startSinglePlayerButton.setManaged(!enable);
+        this.singleVsBot.setVisible(!enable);
+        this.singleVsBot.setManaged(!enable);
+        this.singleVsSelf.setVisible(!enable);
+        this.singleVsSelf.setManaged(!enable);
         this.challengeButton.setVisible(enable);
         this.challengeButton.setManaged(enable);
+        this.isBot.setVisible(enable);
+        this.isBot.setManaged(enable);
     }
 
     public void setClientView(ClientView clientView) {
@@ -126,5 +140,15 @@ public class ClientController extends AbstractController {
         alert.initOwner(window);
 
         return alert;
+    }
+
+    public void setPlayerList(ArrayList<String> playerList) {
+        this.client.setPlayers(playerList);
+        this.client.getPlayers().forEach((player) -> this.playerList.getItems().add(player));
+    }
+
+    public void setGamesList(ArrayList<String> gamesList) {
+        this.client.setGames(gamesList);
+        this.client.getGames().forEach((game) -> this.gamesList.getItems().add(game));
     }
 }

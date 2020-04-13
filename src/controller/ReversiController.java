@@ -6,12 +6,10 @@ import javafx.scene.shape.Ellipse;
 import model.Move;
 import service.ServerService;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-// EEN AANTAL METHODES MOETEN AANGEPAST WORDEN AAN DE REGELS VAN REVERSI
 public class ReversiController extends AbstractController{
     private char whoseTurn = 'W';
     private Cell[][] cell = new Cell[8][8];
@@ -21,7 +19,6 @@ public class ReversiController extends AbstractController{
     private int WScore;
     private int BScore;
     private int remaining;
-    private boolean isMultiplayer;
 
     @FXML
     private GridPane grid;
@@ -73,17 +70,15 @@ public class ReversiController extends AbstractController{
     public void setMyTurn() {
         myTurn = true;
 
-        try {
-            TimeUnit.MILLISECONDS.sleep(400);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        if (isBot) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        Cell bestCell = calculateBestMove();
-        bestCell.drawAndsetToken(whoseTurn);
-//        makeMove(bestCell.pos);
-        checkGameStatus();
-        bestCell.setDisable(true);
+            makeAImove();
+        }
 
         myTurn = false;
     }
@@ -126,17 +121,23 @@ public class ReversiController extends AbstractController{
 
         /* Handle a mouse click event */
         private void handleMouseClick() {
-            if (token == ' ' && whoseTurn != ' ' && !isMultiplayer) {
-                int column = this.pos % 8;
-                int row = this.pos / 8;
-
-                Point point = new Point(row, column);
-                placeMove(point, whoseTurn, getOpponent());
-//                makeMove(this.pos);
-                this.setDisable(true);
+            if (!isMultiplayer && token == ' ' && whoseTurn != ' ') {
+                drawAndsetToken(whoseTurn);
                 checkGameStatus();
+                this.setDisable(true);
 
-                makeAImove();
+                if (isBot) {
+                    makeAImove();
+                }
+            }
+
+            else if (isMultiplayer && token == ' ' && whoseTurn != ' ' && myTurn) {
+                drawAndsetToken(whoseTurn);
+                checkGameStatus();
+                makeMove(pos);
+                this.setDisable(true);
+
+                myTurn = false;
             }
         }
 
@@ -190,6 +191,7 @@ public class ReversiController extends AbstractController{
         if (randomMove.a != -1) {
             Cell currentCell = cell[randomMove.a][randomMove.b];
             currentCell.drawAndsetToken(whoseTurn);
+            makeMove(currentCell.pos);
         }
     }
 

@@ -25,6 +25,7 @@ public class ServerService {
     private Socket socket = null;
     private Scanner scanner;
     private LinkedList<String> queue;
+    private boolean isBot = true;
 
     private static String IP_ADDRESS;
     private static int PORT;
@@ -62,14 +63,16 @@ public class ServerService {
         return PORT;
     }
 
+    public void setIsBot(boolean isBot) {
+        this.isBot = isBot;
+    }
+
     /**
      * @return String
      */
     private ArrayList<String> readResponse() {
         ArrayList<String> responses = new ArrayList<>();
         try {
-            TimeUnit.MILLISECONDS.sleep(50);
-
             while (this.queue.size() > 0) {
                 String newLine = this.queue.poll();
                 responses.add(newLine);
@@ -122,6 +125,10 @@ public class ServerService {
             this.newMatch(newLine);
         } else if (newLine.contains("SVR GAME MOVE")) {
             this.handleMove(newLine);
+        } else if (newLine.contains("SVR PLAYERLIST")) {
+            this.gameClient.setPlayerList(getLastArgument(newLine));
+        } else if (newLine.contains("SVR GAMELIST")) {
+            this.gameClient.setGameList(getLastArgument(newLine));
         }
     }
 
@@ -162,7 +169,7 @@ public class ServerService {
             }
         }
 
-        this.gameClient.startGame(game, true);
+        this.gameClient.startGame(game, true, isBot);
     }
 
     private void incomingChallenge(String newLine) {
@@ -191,18 +198,6 @@ public class ServerService {
         writeLine("challenge accept " + challenger.getChallengeNumber());
     }
 
-    public ArrayList<String> getPlayerList() {
-        ArrayList<String> responseArray = writeLineAndRead("get playerlist");
-
-        for (String response : responseArray) {
-            if (response.contains("SVR PLAYERLIST")) {
-                responseArray = getLastArgument(response);
-            }
-        }
-
-        return responseArray;
-    }
-
     private ArrayList<String> getLastArgument(String line) {
         ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(line.split("\\[")[1].split("]")));
         ArrayList<String> response = new ArrayList<>();
@@ -220,16 +215,12 @@ public class ServerService {
         return response;
     }
 
-    public ArrayList<String> getGamesList() {
-        ArrayList<String> responseArray = writeLineAndRead("get gamelist");
+    public void getPlayerList() {
+        writeLine("get playerlist");
+    }
 
-        for (String response : responseArray) {
-            if (response.contains("SVR GAMELIST")) {
-                responseArray = getLastArgument(response);
-            }
-        }
-
-        return responseArray;
+    public void getGamesList() {
+        writeLine("get gamelist");
     }
 
     public void getHelp() {
@@ -248,21 +239,6 @@ public class ServerService {
         writeLineAndRead("get gamelist");
     }
 
-    /**
-     * @param s
-     * @return
-     */
-    public void subscribe(String s){
-        writeLineAndRead("subscribe " + s);
-    }
-
-    public void matchStart(){
-        HashMap<String, String> map = new HashMap<>();
-    }
-
-    public void playerTurn(){
-    }
-
     public void makeMove(int position){
         writeLine("move " + position);
     }
@@ -270,8 +246,4 @@ public class ServerService {
     public void forfeit(){
         writeLineAndRead("forfeit");
     }
-
-    public void receiveResult(){
-    }
-
 }

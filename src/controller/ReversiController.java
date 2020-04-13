@@ -3,6 +3,7 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
+import main.GameClient;
 import model.Move;
 import service.ServerService;
 
@@ -23,8 +24,9 @@ public class ReversiController extends AbstractController{
     @FXML
     private GridPane grid;
 
-    public ReversiController(ServerService serverService) {
+    public ReversiController(ServerService serverService, GameClient gameClient) {
         this.serverService = serverService;
+        this.gameClient = gameClient;
     }
 
     public void initialize() {
@@ -86,7 +88,17 @@ public class ReversiController extends AbstractController{
     }
 
     public void resetGame() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                Cell currentCell = cell[i][j];
+                currentCell.setToken(' ');
+                currentCell.getChildren().clear();
+            }
+        }
 
+        whoseTurn = 'B';
+
+        this.gameClient.endReversi();
     }
 
     public class Cell extends Pane {
@@ -254,7 +266,7 @@ public class ReversiController extends AbstractController{
 //        } else if (boardIsFull()) {
 //            System.out.print("Draw! The game is over\n");
 //            whoseTurn = ' '; // Game is over
-            this.resetGame();
+//            this.resetGame();
 //        } else {
         whoseTurn = (whoseTurn == 'B') ? 'W' : 'B';
 //        }

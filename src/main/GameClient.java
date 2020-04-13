@@ -54,7 +54,7 @@ public class GameClient extends Application {
         this.ticTacToeController = new TicTacToeController(serverService, this);
         this.ticTacToeView = new TicTacToeView(primaryStage, this.ticTacToeController);
 
-        this.reversiController = new ReversiController(serverService);
+        this.reversiController = new ReversiController(serverService, this);
         this.reversiView = new ReversiView(primaryStage, this.reversiController);
 
         this.client = new Client();
@@ -147,10 +147,15 @@ public class GameClient extends Application {
         this.clientController.setGamesList(gameList);
     }
 
-    public void gameWon() {
+    public void resetGame() {
         if (this.currentGame.equals(GameType.TIC_TAC_TOE))
             this.ticTacToeController.resetGame();
         if (this.currentGame.equals(GameType.REVERSI))
             this.reversiController.resetGame();
+    }
+
+    public void endReversi() {
+        this.reversiView.hide();
+        this.clientView.show();
     }
 }

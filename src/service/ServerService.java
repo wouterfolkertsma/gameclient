@@ -129,8 +129,8 @@ public class ServerService {
             this.gameClient.setPlayerList(getLastArgument(newLine));
         } else if (newLine.contains("SVR GAMELIST")) {
             this.gameClient.setGameList(getLastArgument(newLine));
-        } else if (newLine.contains("SVR GAME WIN")) {
-            this.gameClient.gameWon();
+        } else if (newLine.contains("SVR GAME WIN") || newLine.contains("SVR GAME LOSS")) {
+            this.gameClient.resetGame();
         }
     }
 
@@ -225,27 +225,11 @@ public class ServerService {
         writeLine("get gamelist");
     }
 
-    public void getHelp() {
-        writeLineAndRead("help");
-    }
-
     public void login(String userName) {
         writeLine("login " + userName);
     }
 
-    public void retrievePlayers(){
-        writeLineAndRead("get playerlist");
-    }
-
-    public void retrieveGameList(){
-        writeLineAndRead("get gamelist");
-    }
-
     public void makeMove(int position){
         writeLine("move " + position);
-    }
-
-    public void forfeit(){
-        writeLineAndRead("forfeit");
     }
 }

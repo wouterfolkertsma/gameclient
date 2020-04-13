@@ -10,6 +10,8 @@ import javafx.stage.Window;
 import main.GameClient;
 import model.Challenger;
 import model.Client;
+import model.Game;
+import model.GameType;
 import service.ServerService;
 import view.ClientView;
 
@@ -38,6 +40,9 @@ public class ClientController extends AbstractController {
     private Button challengeButton;
 
     @FXML
+    private Button startSinglePlayerButton;
+
+    @FXML
     private Button singlePlayerButton;
 
     @FXML
@@ -52,43 +57,50 @@ public class ClientController extends AbstractController {
         this.gameClient = gameClient;
     }
 
-
     @SuppressWarnings("unused")
     public void handleSubmitButtonAction(ActionEvent actionEvent) {
         Window owner = challengeButton.getScene().getWindow();
         currentGame = this.gamesList.getSelectionModel().getSelectedItem();
-        currentPlayer = this.playerList.getSelectionModel().getSelectedItem();
 
-        if (isMultiPlayer) {
+        if (startSinglePlayerButton == actionEvent.getTarget()) {
+            Game game = new Game();
+            game.setGameType(currentGame);
+            this.gameClient.startGame(game, false);
+        } else if (challengeButton == actionEvent.getTarget()){
+            currentPlayer = this.playerList.getSelectionModel().getSelectedItem();
             this.serverService.challengePlayer(currentPlayer, currentGame);
-        } else gameClient.startTicTacToe(); // moet later vervangen worden voor iets van 'currentgame'  Puur voor de test.
-
+        }
     }
 
-    public void handleSinglePlayerButtonAction(ActionEvent actionEvent){
-        isMultiPlayer = false;
-    }
+    public void handleTabAction(ActionEvent actionEvent) {
+        Button button = (Button) actionEvent.getTarget();
 
-    public void handleMultiPlayerButtonAction(ActionEvent actionEvent){
-        isMultiPlayer = true;
+        if (button == multiPlayerButton) {
+            this.enableMultiplayer(true);
+        } else if (button == singlePlayerButton) {
+            this.enableMultiplayer(false);
+        }
     }
-
-    /*delete later.
-    public void showTestAlert(Window owner, String message){
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("gelukt");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.initOwner(owner);
-        alert.show();
-    }*/
 
     public void login() {
         this.serverService.login(this.client.getUserName());
         this.client.setPlayers(this.serverService.getPlayerList());
         this.client.setGames(this.serverService.getGamesList());
+
+        this.enableMultiplayer(false);
+
         this.client.getGames().forEach((game) -> this.gamesList.getItems().add(game));
         this.client.getPlayers().forEach((player) -> this.playerList.getItems().add(player));
+    }
+
+    private void enableMultiplayer(boolean enable) {
+        this.isMultiPlayer = enable;
+        this.playerList.setVisible(enable);
+        this.playerList.setManaged(enable);
+        this.startSinglePlayerButton.setVisible(!enable);
+        this.startSinglePlayerButton.setManaged(!enable);
+        this.challengeButton.setVisible(enable);
+        this.challengeButton.setManaged(enable);
     }
 
     public void setClientView(ClientView clientView) {

@@ -22,8 +22,6 @@ public class Client extends AbstractModel {
         return this.games;
     }
 
-
-
     /**
      * @return ArrayList
      */

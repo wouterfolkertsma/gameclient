@@ -2,7 +2,6 @@
 
 <?import javafx.scene.layout.GridPane?>
 
-
 <GridPane
         fx:id="grid" gridLinesVisible="true" maxHeight="-Infinity" maxWidth="-Infinity"
         minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0"

@@ -19,12 +19,9 @@ import static java.lang.Integer.parseInt;
  */
 public class ServerService {
 
-
-
     private ServerListenerService serverListener;
     private GameClient gameClient;
     private BufferedWriter bufferedWriter;
-    private BufferedReader bufferedReader;
     private Socket socket = null;
     private Scanner scanner;
     private LinkedList<String> queue;
@@ -41,7 +38,6 @@ public class ServerService {
         try {
             socket = new Socket(IP_ADDRESS, PORT);
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             scanner = new Scanner(socket.getInputStream());
 
             this.serverListener = new ServerListenerService(this, scanner, queue);
@@ -126,7 +122,7 @@ public class ServerService {
             this.newMatch(newLine);
         } else if (newLine.contains("SVR GAME MOVE")) {
             this.handleMove(newLine);
-        } // jir soest et meitsje kinne, en dan this.gameclient.updatePlayers ofsa
+        }
     }
 
     private void yourTurn(String newLine) {
@@ -166,7 +162,7 @@ public class ServerService {
             }
         }
 
-        this.gameClient.startGame(game);
+        this.gameClient.startGame(game, true);
     }
 
     private void incomingChallenge(String newLine) {
@@ -188,7 +184,7 @@ public class ServerService {
     }
 
     public void challengePlayer(String player, String game){
-        ArrayList<String> response = writeLineAndRead("challenge \"" + player + "\" \"" + game + "\"");
+        writeLine("challenge \"" + player + "\" \"" + game + "\"");
     }
 
     public void acceptChallenge(Challenger challenger) {
@@ -236,15 +232,9 @@ public class ServerService {
         return responseArray;
     }
 
-
-
     public void getHelp() {
         writeLineAndRead("help");
     }
-
-//    private void mayMove(String line) {
-//        this.gameClient.makeMoveTicTacToe(line);
-//    }
 
     public void login(String userName) {
         writeLine("login " + userName);
@@ -274,7 +264,7 @@ public class ServerService {
     }
 
     public void makeMove(int position){
-        writeLineAndRead("move " + position);
+        writeLine("move " + position);
     }
 
     public void forfeit(){

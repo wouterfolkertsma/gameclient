@@ -32,7 +32,7 @@ public class ServerListenerService extends Thread {
                     } else {
                         this.queue.add(newLine);
                     }
-                }//miskien kinne we d'r foar kieze om in refresh button te meitsjen. is wol dikke bagger tho ja das gay. ik sil d'r eem mei piele
+                }
             } catch (Exception exception) {
                 System.out.println(exception.toString());
             }

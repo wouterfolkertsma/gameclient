@@ -9,6 +9,8 @@ import javafx.stage.Window;
 import service.ServerService;
 import view.LoginView;
 
+import java.util.ArrayList;
+
 /**
  * Class LoginController handles all events for the login page.
  *
@@ -45,13 +47,6 @@ public class LoginController extends AbstractController {
             addressField.setText("127.0.0.1,7789");
 //            showAlert(owner, "Please enter an IP and PORT. example: \"127.0.0.1,7789\" ");
         }
-
-        //ArrayList<String> response = this.serverService.login(nameField.getText());
-
-        //if (response.size() < 1) {
-        //    showAlert(owner, "Could not connect to server!");
-        //    return;
-        //}
 
         this.gameClient.login(nameField.getText(), addressField.getText());
     }

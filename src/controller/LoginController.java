@@ -37,12 +37,13 @@ public class LoginController extends AbstractController {
     public void handleSubmitButtonAction(ActionEvent actionEvent) {
         Window owner = submitButton.getScene().getWindow();
 
-        if(nameField.getText().isEmpty()) {
+        if (nameField.getText().isEmpty()) {
             showAlert(owner, "Please fill in your name!");
             return;
         }
-        else if (addressField.getText().isEmpty()){
-            showAlert(owner, "Please enter an IP and PORT. example: \"127.0.0.1,7789\" ");
+        if (addressField.getText().isEmpty()) {
+            addressField.setText("127.0.0.1,7789");
+//            showAlert(owner, "Please enter an IP and PORT. example: \"127.0.0.1,7789\" ");
         }
 
         //ArrayList<String> response = this.serverService.login(nameField.getText());

@@ -32,11 +32,12 @@ public class ServerService {
     private static String IP_ADDRESS;
     private static int PORT;
 
-    public ServerService(GameClient gameClient, String IP_ADDRESS, int PORT) {
+    public ServerService(GameClient gameClient) {
         this.gameClient = gameClient;
-
         this.queue = new LinkedList<>();
+    }
 
+    public void establishConnection(String IP_ADDRESS, int PORT) {
         try {
             socket = new Socket(IP_ADDRESS, PORT);
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -195,7 +196,6 @@ public class ServerService {
     }
 
     public ArrayList<String> getPlayerList() {
-
         ArrayList<String> responseArray = writeLineAndRead("get playerlist");
 
         for (String response : responseArray) {
@@ -208,10 +208,16 @@ public class ServerService {
     }
 
     private ArrayList<String> getLastArgument(String line) {
-        ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(line.split("\\[")[1].split("]")[0].split(", ")));
+        ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(line.split("\\[")[1].split("]")));
         ArrayList<String> response = new ArrayList<>();
 
-        for (String argument : arguments) {
+        if (arguments.size() < 1) {
+            return response;
+        }
+
+        String[] list = arguments.get(0).split(", ");
+
+        for (String argument : list) {
             response.add(argument.substring(1, argument.length() - 1));
         }
 
@@ -240,8 +246,8 @@ public class ServerService {
 //        this.gameClient.makeMoveTicTacToe(line);
 //    }
 
-    public ArrayList<String> login(String userName) {
-        return writeLineAndRead("login " + userName);
+    public void login(String userName) {
+        writeLine("login " + userName);
     }
 
     public void retrievePlayers(){

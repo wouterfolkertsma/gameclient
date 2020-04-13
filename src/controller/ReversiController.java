@@ -88,14 +88,15 @@ public class ReversiController extends AbstractController{
     }
 
     public void resetGame() {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 Cell currentCell = cell[i][j];
                 currentCell.setToken(' ');
                 currentCell.getChildren().clear();
             }
         }
 
+        setStartPositions();
         whoseTurn = 'B';
 
         this.gameClient.endReversi();
@@ -243,21 +244,10 @@ public class ReversiController extends AbstractController{
         if (getValidMoves(whoseTurn, getOpponent()).isEmpty()){
             getWinner();
             resetGame();
-        }else{
+
+        } else {
             whoseTurn = (whoseTurn == 'B') ? 'W' : 'B';
         }
-//        if (checkIfWon(whoseTurn)) {
-//            System.out.print(whoseTurn + " won! The game is over\n");
-//            whoseTurn = ' '; // Game is over
-//            this.resetGame();
-//        } else if (boardIsFull()) {
-//            System.out.print("Draw! The game is over\n");
-//            whoseTurn = ' '; // Game is over
-//            this.resetGame();
-//        } else {
-//        whoseTurn = (whoseTurn == 'B') ? 'W' : 'B';
-//        }
-
     }
 
     private void getWinner(){

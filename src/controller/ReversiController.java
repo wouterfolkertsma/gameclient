@@ -214,25 +214,6 @@ public class ReversiController extends AbstractController{
         }
     }
 
-    public int gameResult(Set<Point> whitePlaceableLocations, Set<Point> blackPlaceableLocations){
-        updateScores();
-        if(remaining == 0){
-            if(WScore > BScore) return 1;
-            else if(BScore > WScore) return -1;
-            else return 0; //Draw
-        }
-        if(WScore==0 || BScore == 0){
-            if(WScore > 0) return 1;
-            else if(BScore > 0) return -1;
-        }
-        if(whitePlaceableLocations.isEmpty() && blackPlaceableLocations.isEmpty()){
-            if(WScore > BScore) return 1;
-            else if(BScore > WScore) return -1;
-            else return 0; //Draw
-        }
-        return -2;
-    }
-
     private void makeMove(int pos) {
         this.serverService.makeMove(pos);
     }
@@ -247,6 +228,12 @@ public class ReversiController extends AbstractController{
     }
 
     private void checkGameStatus() {
+        if (getValidMoves(whoseTurn, getOpponent()).isEmpty()){
+            getWinner();
+            resetGame();
+        }else{
+            whoseTurn = (whoseTurn == 'B') ? 'W' : 'B';
+        }
 //        if (checkIfWon(whoseTurn)) {
 //            System.out.print(whoseTurn + " won! The game is over\n");
 //            whoseTurn = ' '; // Game is over
@@ -254,10 +241,29 @@ public class ReversiController extends AbstractController{
 //        } else if (boardIsFull()) {
 //            System.out.print("Draw! The game is over\n");
 //            whoseTurn = ' '; // Game is over
-            this.resetGame();
+//            this.resetGame();
 //        } else {
-        whoseTurn = (whoseTurn == 'B') ? 'W' : 'B';
+//        whoseTurn = (whoseTurn == 'B') ? 'W' : 'B';
 //        }
+
+    }
+
+    private void getWinner(){
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j<8; j++){
+                if(cell[i][j].getToken() == 'W')
+                    WScore++;
+                else
+                    BScore++;
+            }
+        }
+        if(WScore > BScore)
+            System.out.println("White is the winner!");
+        else
+            System.out.println("Black is the Winner!");
+
+        WScore = 0;
+        BScore = 0;
     }
 
     // vindt alle locaties waar een zet gemaakt mag worden.

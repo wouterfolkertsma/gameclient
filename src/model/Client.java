@@ -57,11 +57,11 @@ public class Client extends AbstractModel {
         return this.userName;
     }
 
-    public String getAddress() {return this.address;}
+    public String getAddress() {
+        return this.address;
+    }
 
     public void setAddress(String address){
         this.address = address;
     }
-
-
 }

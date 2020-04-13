@@ -146,4 +146,11 @@ public class GameClient extends Application {
     public void setGameList(ArrayList<String> gameList) {
         this.clientController.setGamesList(gameList);
     }
+
+    public void gameWon() {
+        if (this.currentGame.equals(GameType.TIC_TAC_TOE))
+            this.ticTacToeController.resetGame();
+        if (this.currentGame.equals(GameType.REVERSI))
+            this.reversiController.resetGame();
+    }
 }

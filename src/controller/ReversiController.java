@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ReversiController extends AbstractController{
-    private char whoseTurn = 'W';
+    private char whoseTurn = 'B';
     private Cell[][] cell = new Cell[8][8];
 
     private ServerService serverService;
@@ -60,7 +60,8 @@ public class ReversiController extends AbstractController{
         int row = number / 8;
 
         Cell currentCell = cell[row][column];
-        currentCell.drawAndsetToken(whoseTurn);
+        placeMove(currentCell.pos, whoseTurn, getOpponent());
+        checkGameStatus();
     }
 
     public void setMultiplayer(boolean isMultiplayer) {
@@ -78,13 +79,14 @@ public class ReversiController extends AbstractController{
             }
 
             makeAImove();
+            checkGameStatus();
         }
 
         myTurn = false;
     }
 
-    private Cell calculateBestMove() {
-        return cell[1][1];
+    public void resetGame() {
+
     }
 
     public class Cell extends Pane {
@@ -122,17 +124,18 @@ public class ReversiController extends AbstractController{
         /* Handle a mouse click event */
         private void handleMouseClick() {
             if (!isMultiplayer && token == ' ' && whoseTurn != ' ') {
-                drawAndsetToken(whoseTurn);
+                placeMove(pos, whoseTurn, getOpponent());
                 checkGameStatus();
                 this.setDisable(true);
 
                 if (isBot) {
                     makeAImove();
+                    checkGameStatus();
                 }
             }
 
             else if (isMultiplayer && token == ' ' && whoseTurn != ' ' && myTurn) {
-                drawAndsetToken(whoseTurn);
+                placeMove(pos, whoseTurn, getOpponent());
                 checkGameStatus();
                 makeMove(pos);
                 this.setDisable(true);
@@ -180,19 +183,26 @@ public class ReversiController extends AbstractController{
     }
 
     private void makeAImove() {
-        HashSet<Point> validMoves = getValidMoves(whoseTurn, getOpponent());
-        Point randomMove = new Point(-1, -1);
+        Cell bestCell = evaluate();
+        System.out.println("POS + " + bestCell.pos);
+        placeMove(bestCell.pos, whoseTurn, getOpponent());
 
-        for (Point move : validMoves) {
-            randomMove = move;
-            break;
+        if (isMultiplayer) {
+            makeMove(bestCell.pos);
         }
 
-        if (randomMove.a != -1) {
-            Cell currentCell = cell[randomMove.a][randomMove.b];
-            currentCell.drawAndsetToken(whoseTurn);
-            makeMove(currentCell.pos);
-        }
+//        HashSet<Point> validMoves = getValidMoves(whoseTurn, getOpponent());
+//        Point randomMove = new Point(-1, -1);
+//
+//        for (Point move : validMoves) {
+//            randomMove = move;
+//            break;
+//        }
+//
+//        if (randomMove.a != -1) {
+//            Cell currentCell = cell[randomMove.a][randomMove.b];
+//            currentCell.drawAndsetToken(whoseTurn);
+//        }
     }
 
     public class Point {
@@ -244,7 +254,7 @@ public class ReversiController extends AbstractController{
 //        } else if (boardIsFull()) {
 //            System.out.print("Draw! The game is over\n");
 //            whoseTurn = ' '; // Game is over
-//            this.resetGame();
+            this.resetGame();
 //        } else {
         whoseTurn = (whoseTurn == 'B') ? 'W' : 'B';
 //        }
@@ -333,9 +343,9 @@ public class ReversiController extends AbstractController{
     }
 
     // doet een zet en keert daarbij de token van alle andere stenen om. gebaseerd op coördinaat.
-    public void placeMove(Point p, char player, char opponent){
-        int i = p.a,
-            j = p.b;
+    public void placeMove(int pos, char player, char opponent){
+        int i = pos / 8,
+            j = pos % 8;
 
         cell[i][j].drawAndsetToken(player);
 
@@ -438,5 +448,97 @@ public class ReversiController extends AbstractController{
 
     private char getOpponent() {
         return (whoseTurn == 'W') ? 'B' : 'W';
+    }
+
+    public boolean boardIsFull() {
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (cell[i][j].getToken() == ' ')
+                    return false;
+
+        return true;
+    }
+
+
+//    public Cell calculateBestMove() {
+//        int bestScore = -1000;
+//        Cell bestCell = cell[0][0];
+//
+//        for(int i = 0; i<8; i++){
+//            for(int j = 0; j<8; j++){
+//                if (cell[i][j].getToken() == ' ') {
+//
+//                    cell[i][j].setToken(whoseTurn);
+//                    int score = minimax(0, false);
+//                    cell[i][j].setToken(' ');
+//
+//                    if (score > bestScore) {
+//                        bestScore = score;
+//                        bestCell = cell[i][j];
+//                    }
+//                }
+//            }
+//        }
+//        return bestCell;
+//    }
+
+//    private int minimax(int depth, boolean maximise){
+//        int score = evaluate();
+//        if(score == 10 || score == -10)
+//            return score;
+//        if(boardIsFull())
+//            return 0;
+//        if(maximise){
+//            int bestScore = -1000;
+//            for (int i = 0; i < 8; i++) {
+//                for (int j = 0; j < 8; j++) {
+//                    if (cell[i][j].getToken() == ' ') {
+//                        cell[i][j].setToken(whoseTurn);
+//                        bestScore = Math.max(bestScore, minimax(depth + 1, false));
+//                        cell[i][j].setToken(' ');
+//                    }
+//                }
+//            }
+//            return bestScore;
+//        } else {
+//            int bestScore = 1000;
+//            for (int i = 0; i < 8; i++) {
+//                for (int j = 0; j < 8; j++) {
+//                    if (cell[i][j].getToken() == ' ') {
+//                        cell[i][j].setToken(getOpponent());
+//                        bestScore = Math.min(bestScore, minimax( depth + 1, true));
+//                        cell[i][j].setToken(' ');
+//                    }
+//                }
+//            }
+//
+//            return bestScore;
+//        }
+//    }
+
+    private Cell evaluate() {
+        int bestScore = 0;
+        Cell bestCell = cell[0][0];
+
+        int[][] scoreBoard = {
+                {1000, -100,  150,  100,  100,  150, -100, 1000},
+                {-100, -200,   20,   20,   20,   20, -200, -100},
+                { 150,   20,   15,   15,   15,   15,   20,  150},
+                { 100,   20,   15,   10,   10,   15,   20,  100},
+                { 100,   20,   15,   10,   10,   15,   20,  100},
+                { 150,   20,   15,   15,   15,   15,   20,  150},
+                {-100, -200,   20,   20,   20,   20, -200, -100},
+                {1000, -100,  150,  100,  100,  150, -100, 1000}};
+
+        HashSet<Point> validMoves = getValidMoves(whoseTurn, getOpponent());
+
+        for (Point move : validMoves) {
+            if (bestScore < scoreBoard[move.a][move.b]) {
+                bestScore = scoreBoard[move.a][move.b];
+                bestCell = cell[move.a][move.b];
+            }
+        }
+
+        return bestCell;
     }
 }

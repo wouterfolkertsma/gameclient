@@ -129,6 +129,8 @@ public class ServerService {
             this.gameClient.setPlayerList(getLastArgument(newLine));
         } else if (newLine.contains("SVR GAMELIST")) {
             this.gameClient.setGameList(getLastArgument(newLine));
+        } else if (newLine.contains("SVR GAME WIN")) {
+            this.gameClient.gameWon();
         }
     }
 

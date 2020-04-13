@@ -147,7 +147,7 @@ public class TicTacToeController extends AbstractController {
         }
     }
 
-    private void resetGame() {
+    public void resetGame() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 Cell currentCell = cell[i][j];

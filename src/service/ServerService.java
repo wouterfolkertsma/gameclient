@@ -8,14 +8,13 @@ import model.Move;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.Integer.parseInt;
 
 /**
  * Class ServerService contains all the communication methods for the server.
  *
- * @author Wouter Folkertsma, Daniël Windstra, Anthonie Ooms
+ * @author Wouter Folkertsma, Daniël Windstra
  */
 public class ServerService {
 

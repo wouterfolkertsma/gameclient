@@ -5,6 +5,9 @@ import javafx.application.Platform;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+/**
+ * @author Wouter Folkertsma
+ */
 public class ServerListenerService extends Thread {
 
     private ServerService serverService;

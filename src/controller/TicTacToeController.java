@@ -11,6 +11,10 @@ import service.ServerService;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author Wouter Folkertma
+ *         Djurre Eikema
+ */
 public class TicTacToeController extends AbstractController {
     private char whoseTurn = 'X';
     private Cell[][] cell = new Cell[3][3];

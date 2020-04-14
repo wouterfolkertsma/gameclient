@@ -2,6 +2,9 @@ package controller;
 
 import main.GameClient;
 
+/**
+ * @author Wouter Folkertsma
+ */
 public abstract class AbstractController {
     GameClient gameClient;
     boolean isMultiplayer;

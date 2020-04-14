@@ -15,6 +15,9 @@ import view.TicTacToeView;
 
 import java.util.ArrayList;
 
+/**
+ * @author Wouter Folkertsma
+ */
 public class GameClient extends Application {
     private ServerService serverService;
     private LoginView loginView;

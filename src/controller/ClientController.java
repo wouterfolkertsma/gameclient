@@ -8,7 +8,6 @@ import main.GameClient;
 import model.Challenger;
 import model.Client;
 import model.Game;
-import model.GameType;
 import service.ServerService;
 import view.ClientView;
 
@@ -24,7 +23,7 @@ public class ClientController extends AbstractController {
     private Client client;
     private ServerService serverService;
     private ClientView clientView;
-    private boolean isMultiPlayer = false;
+    private boolean isMultiPlayer = true;
     private String currentGame;
     private String currentPlayer;
 

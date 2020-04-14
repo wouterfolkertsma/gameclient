@@ -8,9 +8,12 @@ import model.Move;
 import service.ServerService;
 
 import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author Wouter Folkertsma
+ *         Daniel Windstra
+ */
 public class ReversiController extends AbstractController{
     private char whoseTurn = 'B';
     private Cell[][] cell = new Cell[8][8];
@@ -525,7 +528,7 @@ public class ReversiController extends AbstractController{
 //    }
 
     private Cell evaluate() {
-        int bestScore = 0;
+        int bestScore = -10000;
         Cell bestCell = cell[0][0];
 
         int[][] scoreBoard = {

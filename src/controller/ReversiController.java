@@ -6,8 +6,7 @@ import javafx.scene.shape.Ellipse;
 import main.GameClient;
 import model.Move;
 import service.ServerService;
-
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,7 +36,7 @@ public class ReversiController extends AbstractController{
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                grid.add(cell[i][j] = new Cell(pos), j, i);
+                grid.add(cell[i][j] = new Cell(pos, i, j), j, i);
                 pos += 1;
             }
         }
@@ -108,9 +107,13 @@ public class ReversiController extends AbstractController{
     public class Cell extends Pane {
         private char token = ' ';
         private int pos;
+        private int i;
+        private int j;
 
-        public Cell(int pos) {
+        public Cell(int pos, int i, int j) {
             this.pos = pos;
+            this.i = i;
+            this.j = j;
             setStyle("-fx-border-color: black");
             this.setPrefSize(2000, 2000);
             this.setOnMouseClicked(e -> handleMouseClick());
@@ -139,7 +142,7 @@ public class ReversiController extends AbstractController{
 
         /* Handle a mouse click event */
         private void handleMouseClick() {
-            if (!isMultiplayer && token == ' ' && whoseTurn != ' ') {
+            if (!isMultiplayer && token == ' ' && whoseTurn != ' ' && isValidMove(i, j)) {
                 placeMove(pos, whoseTurn, getOpponent());
                 checkGameStatus();
                 this.setDisable(true);
@@ -200,33 +203,12 @@ public class ReversiController extends AbstractController{
 
     private void makeAImove() {
         Cell bestCell = evaluate();
-        System.out.println("POS + " + bestCell.pos);
-        placeMove(bestCell.pos, whoseTurn, getOpponent());
+        if (bestCell != null) {
+            placeMove(bestCell.pos, whoseTurn, getOpponent());
 
-        if (isMultiplayer) {
-            makeMove(bestCell.pos);
-        }
-
-//        HashSet<Point> validMoves = getValidMoves(whoseTurn, getOpponent());
-//        Point randomMove = new Point(-1, -1);
-//
-//        for (Point move : validMoves) {
-//            randomMove = move;
-//            break;
-//        }
-//
-//        if (randomMove.a != -1) {
-//            Cell currentCell = cell[randomMove.a][randomMove.b];
-//            currentCell.drawAndsetToken(whoseTurn);
-//        }
-    }
-
-    public class Point {
-        int a, b;
-
-        Point(int a, int b) {
-            this.a = a;
-            this.b = b;
+            if (isMultiplayer) {
+                makeMove(bestCell.pos);
+            }
         }
     }
 
@@ -234,17 +216,8 @@ public class ReversiController extends AbstractController{
         this.serverService.makeMove(pos);
     }
 
-    public boolean cellIsFull() {
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++)
-                if (cell[i][j].getToken() == ' ')
-                    return false;
-
-        return true;
-    }
-
     private void checkGameStatus() {
-        if (getValidMoves(whoseTurn, getOpponent()).isEmpty()){
+        if (getValidMoves().isEmpty()){
             getWinner();
             resetGame();
 
@@ -269,88 +242,6 @@ public class ReversiController extends AbstractController{
 
         WScore = 0;
         BScore = 0;
-    }
-
-    // vindt alle locaties waar een zet gemaakt mag worden.
-    private HashSet<Point> getValidMoves(char player, char opponent){
-        HashSet<Point> validMoves = new HashSet<>();
-
-        for(int i=0;i<8;++i) {
-            for(int j=0;j<8;++j) {
-                if(cell[i][j].getToken() == opponent) {
-                    int I = i, J = j;
-                    if(i-1>=0 && j-1>=0 && cell[i-1][j-1].getToken() == ' ') {
-                        i = i+1;
-                        j = j+1;
-                        while(i<7 && j<7 && cell[i][j].getToken() == opponent) {
-                            i++;
-                            j++;
-                        }
-                        if (i <= 7 && j <= 7 && cell[i][j].getToken() == player) {
-                            validMoves.add(new Point(I-1, J-1));
-                        }
-                    }
-                    i=I;j=J;
-                    if(i-1>=0 && cell[i-1][j].getToken() == ' '){
-                        i = i+1;
-                        while(i<7 && cell[i][j].getToken() == opponent)
-                            i++;
-                        if(i<=7 && cell[i][j].getToken() == player) validMoves.add(new Point(I-1, J));
-                    }
-                    i=I;
-                    if(i-1>=0 && j+1<=7 && cell[i-1][j+1].getToken() == ' '){
-                        i = i+1; j = j-1;
-                        while(i<7 && j>0 && cell[i][j].getToken() == opponent){
-                            i++;
-                            j--;
-                        }
-                        if(i<=7 && j>=0 && cell[i][j].getToken() == player) validMoves.add(new Point(I-1, J+1));
-                    }
-                    i=I;j=J;
-                    if(j-1>=0 && cell[i][j-1].getToken() == ' '){
-                        j = j+1;
-                        while(j<7 && cell[i][j].getToken() == opponent)
-                            j++;
-                        if(j<=7 && cell[i][j].getToken() == player) validMoves.add(new Point(I, J-1));
-                    }
-                    j=J;
-                    if(j+1<=7 && cell[i][j+1].getToken() == ' '){
-                        j=j-1;
-                        while(j>0 && cell[i][j].getToken() == opponent)
-                            j--;
-                        if(j>=0 && cell[i][j].getToken() == player) validMoves.add(new Point(I, J+1));
-                    }
-                    j=J;
-                    if(i+1<=7 && j-1>=0 && cell[i+1][j-1].getToken() == ' '){
-                        i=i-1;j=j+1;
-                        while(i>0 && j<7 && cell[i][j].getToken() == opponent){
-                            i--;
-                            j++;
-                        }
-                        if(i>=0 && j<=7 && cell[i][j].getToken() == player) validMoves.add(new Point(I+1, J-1));
-                    }
-                    i=I;j=J;
-                    if(i+1 <= 7 && cell[i+1][j].getToken() == ' '){
-                        i=i-1;
-                        while(i>0 && cell[i][j].getToken() == opponent)
-                            i--;
-                        if(i>=0 && cell[i][j].getToken() == player) validMoves.add(new Point(I+1, J));
-                    }
-                    i=I;
-                    if(i+1 <= 7 && j+1 <=7 && cell[i+1][j+1].getToken() == ' '){
-                        i=i-1;j=j-1;
-                        while(i>0 && j>0 && cell[i][j].getToken() == opponent) {
-                            i--;
-                            j--;
-                        }
-                        if(i>=0 && j>=0 && cell[i][j].getToken() == player)validMoves.add(new Point(I+1, J+1));
-                    }
-                    i=I;j=J;
-                }
-            }
-        }
-
-        return validMoves;
     }
 
     // doet een zet en keert daarbij de token van alle andere stenen om. gebaseerd op coördinaat.
@@ -445,91 +336,30 @@ public class ReversiController extends AbstractController{
         }
     }
 
-
-    public void updateScores() {
-        WScore = 0; BScore = 0; remaining = 0;
-        for(int i=0;i<8;++i){
-            for(int j=0;j<8;++j){
-                if(cell[i][j].getToken()=='W') WScore++;
-                else if(cell[i][j].getToken()=='B') BScore++;
-                else remaining++;
-            }
-        }
-    }
-
     private char getOpponent() {
         return (whoseTurn == 'W') ? 'B' : 'W';
     }
 
-    public boolean boardIsFull() {
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++)
-                if (cell[i][j].getToken() == ' ')
-                    return false;
+    private ArrayList<Cell> getValidMoves() {
+        ArrayList<Cell> validMoves = new ArrayList<>();
 
-        return true;
+        for(int i = 0; i < cell.length; i++) {
+            for(int j = 0; j < cell[0].length; j++) {
+                Cell currentCell = cell[i][j];
+
+                //if this spot is empty check to see if its a valid move spot, if it is, return true
+                if(currentCell.getToken() == ' ' && isValidMove(i, j)) {
+                    validMoves.add(currentCell);
+                }
+            }
+        }
+
+        return validMoves;
     }
-
-
-//    public Cell calculateBestMove() {
-//        int bestScore = -1000;
-//        Cell bestCell = cell[0][0];
-//
-//        for(int i = 0; i<8; i++){
-//            for(int j = 0; j<8; j++){
-//                if (cell[i][j].getToken() == ' ') {
-//
-//                    cell[i][j].setToken(whoseTurn);
-//                    int score = minimax(0, false);
-//                    cell[i][j].setToken(' ');
-//
-//                    if (score > bestScore) {
-//                        bestScore = score;
-//                        bestCell = cell[i][j];
-//                    }
-//                }
-//            }
-//        }
-//        return bestCell;
-//    }
-
-//    private int minimax(int depth, boolean maximise){
-//        int score = evaluate();
-//        if(score == 10 || score == -10)
-//            return score;
-//        if(boardIsFull())
-//            return 0;
-//        if(maximise){
-//            int bestScore = -1000;
-//            for (int i = 0; i < 8; i++) {
-//                for (int j = 0; j < 8; j++) {
-//                    if (cell[i][j].getToken() == ' ') {
-//                        cell[i][j].setToken(whoseTurn);
-//                        bestScore = Math.max(bestScore, minimax(depth + 1, false));
-//                        cell[i][j].setToken(' ');
-//                    }
-//                }
-//            }
-//            return bestScore;
-//        } else {
-//            int bestScore = 1000;
-//            for (int i = 0; i < 8; i++) {
-//                for (int j = 0; j < 8; j++) {
-//                    if (cell[i][j].getToken() == ' ') {
-//                        cell[i][j].setToken(getOpponent());
-//                        bestScore = Math.min(bestScore, minimax( depth + 1, true));
-//                        cell[i][j].setToken(' ');
-//                    }
-//                }
-//            }
-//
-//            return bestScore;
-//        }
-//    }
 
     private Cell evaluate() {
         int bestScore = -10000;
-        Cell bestCell = cell[0][0];
+        Cell bestCell = null;
 
         int[][] scoreBoard = {
                 {1000, -100,  150,  100,  100,  150, -100, 1000},
@@ -541,15 +371,59 @@ public class ReversiController extends AbstractController{
                 {-100, -200,   20,   20,   20,   20, -200, -100},
                 {1000, -100,  150,  100,  100,  150, -100, 1000}};
 
-        HashSet<Point> validMoves = getValidMoves(whoseTurn, getOpponent());
+        ArrayList<Cell> validMoves = getValidMoves();
 
-        for (Point move : validMoves) {
-            if (bestScore < scoreBoard[move.a][move.b]) {
-                bestScore = scoreBoard[move.a][move.b];
-                bestCell = cell[move.a][move.b];
+        for (Cell move: validMoves) {
+            if (bestScore < scoreBoard[move.i][move.j]) {
+                bestScore = scoreBoard[move.i][move.j];
+                bestCell = move;
             }
         }
 
         return bestCell;
+    }
+
+    private boolean isValidMove(int x, int y) {
+        return
+            checkDirection(x, y, -1, 0) |  //left
+            checkDirection(x, y, -1, -1) | //diagonal up-left
+            checkDirection(x, y, 0, -1) |  //up
+            checkDirection(x, y, 1, -1) |  //diagonal up-right
+            checkDirection(x, y, 1, 0) |   //right
+            checkDirection(x, y, 1, 1) |   //diagonal down-right
+            checkDirection(x, y, 0, 1) |   //down
+            checkDirection(x, y, -1, 1);   //diagonal down-left
+    }
+
+    private boolean checkDirection(int x, int y, int xDirection, int yDirection) {
+        int currentX = x;
+        int currentY = y;
+        currentX += xDirection;
+        currentY += yDirection;
+
+        while(currentX >= 0 && currentY >= 0 && currentX < cell.length && currentY < cell[0].length) {
+            Cell currentCell = cell[currentX][currentY];
+            if(isWithinOneSpace(x, y, currentX, currentY)) {
+                if(currentCell.getToken() == ' ' || currentCell.getToken() == whoseTurn) return false;
+            } else {
+                if (currentCell.getToken() == ' ') return false;
+                if (currentCell.getToken() == whoseTurn) return true;
+            }
+
+            currentX += xDirection;
+            currentY += yDirection;
+        }
+
+        return false;
+    }
+
+    private boolean isWithinOneSpace(int disc1X, int disc1Y, int disc2X, int disc2Y) {
+        if((disc1X == disc2X ||disc1X == disc2X - 1 || disc1X == disc2X + 1) &&
+                (disc1Y == disc2Y ||disc1Y == disc2Y - 1 ||disc1Y == disc2Y + 1)) {
+
+            return true;
+        }
+
+        return false;
     }
 }

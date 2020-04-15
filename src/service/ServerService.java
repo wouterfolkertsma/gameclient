@@ -40,6 +40,9 @@ public class ServerService {
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             scanner = new Scanner(socket.getInputStream());
 
+            Timer timer = new Timer();
+            timer.schedule(new KeepAlive(this), 0, 5000);
+
             this.serverListener = new ServerListenerService(this, scanner, queue);
         } catch (Exception exception) {
             System.out.println(exception.getMessage());

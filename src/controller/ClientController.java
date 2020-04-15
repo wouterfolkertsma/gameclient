@@ -143,11 +143,13 @@ public class ClientController extends AbstractController {
 
     public void setPlayerList(ArrayList<String> playerList) {
         this.client.setPlayers(playerList);
+        this.playerList.getItems().clear();
         this.client.getPlayers().forEach((player) -> this.playerList.getItems().add(player));
     }
 
     public void setGamesList(ArrayList<String> gamesList) {
         this.client.setGames(gamesList);
+        this.gamesList.getItems().clear();
         this.client.getGames().forEach((game) -> this.gamesList.getItems().add(game));
     }
 }
